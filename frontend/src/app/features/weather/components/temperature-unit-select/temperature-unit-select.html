@@ -1,0 +1,10 @@
+<p-select
+  [ngModel]="value()"
+  (ngModelChange)="value.set($event)"
+  [options]="options"
+  optionLabel="label"
+  optionValue="value"
+  placeholder="Unidad"
+  [showClear]="true"
+  (onChange)="onChange($event)"
+/>

@@ -1,0 +1,13 @@
+<p-autocomplete
+  [ngModel]="value()"
+  (ngModelChange)="value.set($event)"
+  [suggestions]="suggestions()"
+  optionLabel="name"
+  [dropdown]="true"
+  [forceSelection]="true"
+  placeholder="Buscar municipio"
+  (completeMethod)="onSearch($event)"
+  (onSelect)="onSelect($event)"
+  (onClear)="onClear()"
+  (onKeyUp)="onTyping()"
+/>

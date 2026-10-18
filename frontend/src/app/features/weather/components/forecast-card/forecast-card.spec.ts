@@ -1,0 +1,37 @@
+import { TestBed } from '@angular/core/testing';
+
+import { Forecast } from '../../models/forecast.model';
+import { ForecastCard } from './forecast-card';
+
+describe('ForecastCard', () => {
+  const forecast: Forecast = {
+    averageTemperature: 73,
+    temperatureUnit: 'G_FAH',
+    precipitationProbability: [
+      { probability: 5, period: '00-06' },
+      { probability: 10, period: '06-12' },
+    ],
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ForecastCard],
+    }).compileComponents();
+  });
+
+  it('renders municipality, temperature and precipitation', () => {
+    const fixture = TestBed.createComponent(ForecastCard);
+
+    fixture.componentRef.setInput('municipalityName', 'Madrid');
+    fixture.componentRef.setInput('dateLabel', 'Miércoles, 21 de octubre de 2026');
+    fixture.componentRef.setInput('forecast', forecast);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Madrid');
+    expect(text).toContain('73');
+    expect(text).toContain('°F');
+    expect(text).toContain('00-06');
+    expect(text).toContain('10%');
+  });
+});
