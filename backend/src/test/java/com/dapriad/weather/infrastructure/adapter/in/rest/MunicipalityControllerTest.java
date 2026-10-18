@@ -1,6 +1,5 @@
 package com.dapriad.weather.infrastructure.adapter.in.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -16,6 +15,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.dapriad.weather.application.exception.WeatherProviderException;
 import com.dapriad.weather.application.port.in.SearchMunicipalitiesUseCase;
 import com.dapriad.weather.domain.model.Municipality;
 
@@ -69,8 +69,8 @@ class MunicipalityControllerTest {
     @Test
     void shouldReturn503WhenProviderFails() throws Exception {
         when(searchMunicipalitiesUseCase.searchByName("Madrid"))
-                .thenThrow(new com.dapriad.weather.application.exception.MunicipalityProviderException(
-                        com.dapriad.weather.application.exception.MunicipalityProviderException.Reason.UNAVAILABLE,
+                .thenThrow(new WeatherProviderException(
+                        WeatherProviderException.Reason.UNAVAILABLE,
                         "No data available"));
 
         mockMvc.perform(get("/api/municipalities").param("name", "Madrid"))
@@ -81,12 +81,24 @@ class MunicipalityControllerTest {
     @Test
     void shouldReturn502ForUnauthorized() throws Exception {
         when(searchMunicipalitiesUseCase.searchByName("Madrid"))
-                .thenThrow(new com.dapriad.weather.application.exception.MunicipalityProviderException(
-                        com.dapriad.weather.application.exception.MunicipalityProviderException.Reason.UNAUTHORIZED,
+                .thenThrow(new WeatherProviderException(
+                        WeatherProviderException.Reason.UNAUTHORIZED,
                         "Bad credentials"));
 
         mockMvc.perform(get("/api/municipalities").param("name", "Madrid"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.status").value(502));
+    }
+
+    @Test
+    void shouldReturn503ForRateLimited() throws Exception {
+        when(searchMunicipalitiesUseCase.searchByName("Madrid"))
+                .thenThrow(new WeatherProviderException(
+                        WeatherProviderException.Reason.RATE_LIMITED,
+                        "Too many requests"));
+
+        mockMvc.perform(get("/api/municipalities").param("name", "Madrid"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.code").value("RATE_LIMITED"));
     }
 }

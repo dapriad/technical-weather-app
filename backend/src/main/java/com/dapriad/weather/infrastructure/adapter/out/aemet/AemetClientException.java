@@ -4,6 +4,10 @@ public class AemetClientException extends RuntimeException {
 
     public enum Reason {
         MISSING_API_KEY,
+        UNAUTHORIZED,
+        RATE_LIMITED,
+        NOT_FOUND,
+        UPSTREAM_ERROR,
         HTTP_ERROR,
         TIMEOUT,
         CONNECT_ERROR,

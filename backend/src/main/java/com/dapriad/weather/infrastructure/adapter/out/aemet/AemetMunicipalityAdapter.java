@@ -3,17 +3,13 @@ package com.dapriad.weather.infrastructure.adapter.out.aemet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.dapriad.weather.application.exception.MunicipalityProviderException;
+import com.dapriad.weather.application.exception.WeatherProviderException;
 import com.dapriad.weather.domain.model.Municipality;
+import com.dapriad.weather.domain.model.MunicipalityIds;
 import com.dapriad.weather.domain.port.MunicipalityProvider;
 import com.dapriad.weather.infrastructure.adapter.out.aemet.dto.AemetMunicipalityDto;
 
 public class AemetMunicipalityAdapter implements MunicipalityProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(AemetMunicipalityAdapter.class);
 
     private final AemetMunicipalityClient client;
 
@@ -26,7 +22,7 @@ public class AemetMunicipalityAdapter implements MunicipalityProvider {
         try {
             List<AemetMunicipalityDto> dtos = client.fetchMunicipalities();
             return dtos.stream()
-                    .map(dto -> new Municipality(dto.id(), dto.nombre(), dto.provincia()))
+                    .map(dto -> new Municipality(MunicipalityIds.normalize(dto.id()), dto.nombre(), dto.provincia()))
                     .collect(Collectors.toList());
         } catch (AemetClientException e) {
             throw mapClientException(e);
@@ -41,23 +37,18 @@ public class AemetMunicipalityAdapter implements MunicipalityProvider {
                 .collect(Collectors.toList());
     }
 
-    private MunicipalityProviderException mapClientException(AemetClientException e) {
+    private WeatherProviderException mapClientException(AemetClientException e) {
         return switch (e.reason()) {
-            case MISSING_API_KEY -> new MunicipalityProviderException(MunicipalityProviderException.Reason.NOT_CONFIGURED, "AEMET API key is not configured");
-            case HTTP_ERROR -> {
-                String msg = e.getMessage();
-                if (msg != null && msg.contains("API key")) {
-                    yield new MunicipalityProviderException(MunicipalityProviderException.Reason.UNAUTHORIZED, "AEMET rejected credentials. Verify the API key.", e);
-                }
-                if (msg != null && msg.contains("rate limit")) {
-                    yield new MunicipalityProviderException(MunicipalityProviderException.Reason.RATE_LIMITED, "AEMET rate limit exceeded. Try again later.", e);
-                }
-                yield new MunicipalityProviderException(MunicipalityProviderException.Reason.UNAVAILABLE, "AEMET service unavailable", e);
-            }
-            case TIMEOUT -> new MunicipalityProviderException(MunicipalityProviderException.Reason.TIMEOUT, "AEMET request timed out", e);
-            case CONNECT_ERROR -> new MunicipalityProviderException(MunicipalityProviderException.Reason.UNAVAILABLE, "Cannot connect to AEMET", e);
-            case PARSING_ERROR -> new MunicipalityProviderException(MunicipalityProviderException.Reason.INVALID_RESPONSE, "AEMET returned an invalid response", e);
-            case INVALID_DATA_URL -> new MunicipalityProviderException(MunicipalityProviderException.Reason.INVALID_DATA_URL, "AEMET data URL is invalid", e);
+            case MISSING_API_KEY -> new WeatherProviderException(WeatherProviderException.Reason.NOT_CONFIGURED, "AEMET API key is not configured");
+            case UNAUTHORIZED -> new WeatherProviderException(WeatherProviderException.Reason.UNAUTHORIZED, "AEMET rejected credentials. Verify the API key.", e);
+            case RATE_LIMITED -> new WeatherProviderException(WeatherProviderException.Reason.RATE_LIMITED, "AEMET rate limit exceeded. Try again later.", e);
+            case NOT_FOUND -> new WeatherProviderException(WeatherProviderException.Reason.NOT_FOUND, "AEMET resource was not found", e);
+            case UPSTREAM_ERROR -> new WeatherProviderException(WeatherProviderException.Reason.UNAVAILABLE, "AEMET service unavailable", e);
+            case TIMEOUT -> new WeatherProviderException(WeatherProviderException.Reason.TIMEOUT, "AEMET request timed out", e);
+            case CONNECT_ERROR -> new WeatherProviderException(WeatherProviderException.Reason.UNAVAILABLE, "Cannot connect to AEMET", e);
+            case PARSING_ERROR -> new WeatherProviderException(WeatherProviderException.Reason.INVALID_RESPONSE, "AEMET returned an invalid response", e);
+            case INVALID_DATA_URL -> new WeatherProviderException(WeatherProviderException.Reason.INVALID_DATA_URL, "AEMET data URL is invalid", e);
+            case HTTP_ERROR -> new WeatherProviderException(WeatherProviderException.Reason.UNAVAILABLE, "AEMET service unavailable", e);
         };
     }
 }

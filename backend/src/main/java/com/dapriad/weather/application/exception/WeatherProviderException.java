@@ -1,11 +1,12 @@
 package com.dapriad.weather.application.exception;
 
-public class MunicipalityProviderException extends RuntimeException {
+public class WeatherProviderException extends RuntimeException {
 
     public enum Reason {
         NOT_CONFIGURED,
         UNAUTHORIZED,
         RATE_LIMITED,
+        NOT_FOUND,
         UNAVAILABLE,
         TIMEOUT,
         INVALID_RESPONSE,
@@ -14,12 +15,12 @@ public class MunicipalityProviderException extends RuntimeException {
 
     private final Reason reason;
 
-    public MunicipalityProviderException(Reason reason, String message) {
+    public WeatherProviderException(Reason reason, String message) {
         super(message);
         this.reason = reason;
     }
 
-    public MunicipalityProviderException(Reason reason, String message, Throwable cause) {
+    public WeatherProviderException(Reason reason, String message, Throwable cause) {
         super(message, cause);
         this.reason = reason;
     }
