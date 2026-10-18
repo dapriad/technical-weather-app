@@ -18,9 +18,8 @@ A full-stack technical exercise that shows tomorrow's weather for Spanish munici
 single-page application, Docker images published to GitHub Container Registry, and the CI/CD
 pipelines that build and publish them.
 
-<!-- Add the app screenshot at docs/assets/weather-app.png and uncomment:
-![Technical Weather App](docs/assets/weather-app.png)
--->
+[Technical Weather App](docs/assets/weather-app.png)
+
 
 ## What it does
 
