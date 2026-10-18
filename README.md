@@ -2,20 +2,20 @@
 
 [![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
 
-Technical monorepo for a technical exercise based on Spring Boot and Angular. The repository contains an API, a frontend application, both Docker configurations and a GitHub Actions workflow that publishes public container images to GitHub Container Registry.
+Technical monorepo for a technical exercise based on Spring Boot and Angular. The repository contains an API with AEMET OpenData integration, an Angular frontend, Docker configurations, and a GitHub Actions workflow that publishes public container images to GitHub Container Registry.
 
 ## Current status
 
-This is a runnable scaffold. It currently provides:
+This is a runnable application with AEMET municipality search integration:
 
 - Angular application served through Nginx.
-- Spring Boot REST endpoints exposed through `/api`.
+- Spring Boot REST endpoints including AEMET municipality search.
 - Development proxy from Angular to Spring Boot.
 - Local Docker Compose environment.
 - Public GHCR images for `linux/amd64` and `linux/arm64`.
 - Automatic OpenAPI documentation using Springdoc.
 
-There is no database, authentication or external weather integration in this milestone.
+There is no database or authentication in this milestone. AEMET municipality forecasts are planned for a future iteration.
 
 ## Stack
 
@@ -30,6 +30,7 @@ There is no database, authentication or external weather integration in this mil
 | Frontend build image | Node.js | 24 Alpine |
 | Frontend runtime image | Nginx | 1.27 Alpine |
 | Container orchestration | Docker Compose V2 | current |
+| AEMET client | RestClient | JDK HttpClient (Java 21) |
 
 ## Quick start with published images
 
@@ -39,7 +40,11 @@ Start a compatible Docker runtime, then run:
 git clone https://github.com/dapriad/technical-weather-app.git
 cd technical-weather-app
 
-docker compose pull
+# Copy the environment example and add your AEMET key
+# https://opendata.aemet.es/centrodedescargas/inicio
+cp .env.example .env
+# Edit .env and replace AEMET_API_KEY with your real key
+
 docker compose up -d
 ```
 
@@ -57,6 +62,7 @@ curl -fsS http://localhost:8080/api/health
 curl -fsS http://localhost:8080/api/hello
 curl -fsS http://localhost:4200/api/health
 curl -fsS http://localhost:4200/api/hello
+curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
 ```
 
 Stop the environment:
@@ -73,10 +79,11 @@ For a step-by-step reviewer guide, use the [onboarding documentation](docs/ONBOA
 |---|---|---|
 | GET | `/api/health` | `{"status":"UP"}` |
 | GET | `/api/hello` | `{"message":"Hello from Spring Boot"}` |
+| GET | `/api/municipalities?name=Madrid` | `[{"id":"28079","name":"Madrid"}]` |
 | GET | `/swagger-ui.html` | Swagger UI for the Spring Boot API |
 | GET | `/v3/api-docs` | Generated OpenAPI definition |
 
-The same `/api/health` and `/api/hello` paths are available through the frontend when it proxies or forwards requests to `http://localhost:8080`.
+The same `/api/health`, `/api/hello` and `/api/municipalities` paths are available through the frontend proxy.
 
 ## Repository layout
 
@@ -127,6 +134,16 @@ cd backend
 ./mvnw test
 ```
 
+AEMET municipality search:
+
+| Test | Description |
+|---|---|
+| Case-insensitive search | `Madrid` matches `madrid` |
+| Accent-insensitive search | `malaga` matches `Málaga` |
+| Substring search | `palma` matches `Palma de Mallorca` |
+| Empty result | `searchByName("NotExisting")` returns `[]` |
+| Missing key | Returns `503 Service Unavailable` |
+
 Frontend:
 
 ```bash
@@ -151,10 +168,19 @@ Package pages:
 
 The GitHub Actions workflow publishes both images for `linux/amd64` and `linux/arm64`. The workflow runs on pushes to `main`, on version tags, and can also be executed manually.
 
+## AEMET integration notes
+
+- The municipality search endpoint calls AEMET's `GET /api/maestro/municipios` API.
+- AEMET returns a two-step response: first an envelope with a data URL, then the municipalities JSON from that URL.
+- The municipality list is requested on every search (no caching in this iteration). Caching is planned as a performance improvement.
+- Search is case and accent insensitive.
+- No database is used; all data lives in memory for the duration of each request.
+
 ## Documentation
 
 - [Onboarding guide](docs/ONBOARDING.md)
 - [API documentation guide](docs/api/README.md)
+- [Planned improvements](docs/IMPROVEMENTS.md)
 
 ## Author
 

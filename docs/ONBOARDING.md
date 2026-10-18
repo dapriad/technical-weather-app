@@ -1,44 +1,23 @@
 # Project Onboarding
 
-This guide is intended for reviewers who want to run, test and inspect the Technical Weather App without using Docker as their primary development environment, and also for people who only need to execute the published containers.
+This guide is intended for reviewers who want to run, test and inspect the Technical Weather App, and for developers who need a complete local setup.
 
 ## What this project is
 
 Technical Weather App is a technical exercise monorepo composed of:
 
-- A Spring Boot REST API.
+- A Spring Boot REST API with AEMET OpenData municipality integration.
 - An Angular single-page application.
-- Docker images for each component.
-- A GitHub Actions workflow that builds and publishes those images to GitHub Container Registry.
-
-The current milestone is intentionally small. It is meant to prove that the frontend, backend, proxy, containers and deployment documentation work together, then build real weather functionality on top of that foundation.
-
-## Current behavior
-
-The application exposes two scaffold endpoints:
-
-| Path | Example response | Notes |
-|---|---|---|
-| `GET /api/health` | `{"status":"UP"}` | Simple backend health check. |
-| `GET /api/hello` | `{"message":"Hello from Spring Boot"}` | Demonstrates frontend-backend communication. |
-
-OpenAPI documentation is generated through Springdoc and available at:
-
-```text
-http://localhost:8080/swagger-ui.html
-http://localhost:8080/v3/api-docs
-```
-
-The frontend proxy currently forwards `/api` to `http://localhost:8080`. If you want to expose Swagger through the frontend container in the future, add a location rule in `frontend/nginx.conf`.
+- Docker images for each component, published to GitHub Container Registry.
+- A GitHub Actions workflow that builds and publishes those images automatically.
 
 ## What is not included yet
 
-This scaffold does not currently include:
+This milestone does not include:
 
 - Authentication or authorization.
 - Database integration.
-- Weather API consumption.
-- Weather domain business logic.
+- AEMET municipality forecast (daily precipitation, temperature, etc).
 - Frontend routing or advanced state management.
 
 ## Reviewer quick start
@@ -51,13 +30,36 @@ To run the project using containers, install:
 - Git.
 - curl or another HTTP client.
 
-No API keys are needed for the current scaffold.
+For local code development, also install:
+
+- Java 21 (Eclipse Temurin recommended).
+- Node.js `22.22.3+`, `24.15.0+` or `26+`.
+- npm bundled with Node.js.
+
+### Get an AEMET API key
+
+The municipality search endpoint requires an AEMET OpenData API key.
+
+1. Visit https://opendata.aemet.es/centrodedescargas/inicio
+2. Register with your email.
+3. Wait for the confirmation email (usually a few minutes).
+4. Use your email as the API key.
+
+**Important:** Each request calls AEMET twice (envelope + data URL). Be aware of AEMET's rate limits or use caching in production.
 
 ### Start the published stack
 
 From the repository root:
 
 ```bash
+git clone https://github.com/dapriad/technical-weather-app.git
+cd technical-weather-app
+
+# Copy .env.example and set your AEMET key
+cp .env.example .env
+# Edit .env and replace the AEMET_API_KEY value
+# Do NOT commit .env — it is gitignored
+
 docker compose pull
 docker compose up -d
 docker compose ps
@@ -77,18 +79,21 @@ Expected exposed services:
 | `http://localhost:4200` | Angular frontend served by nginx. |
 | `http://localhost:4200/api/health` | Health endpoint through the frontend proxy. |
 | `http://localhost:4200/api/hello` | Hello endpoint through the frontend proxy. |
+| `http://localhost:4200/api/municipalities?name=Madrid` | Municipality search through the frontend proxy. |
 | `http://localhost:8080/api/health` | Backend health endpoint. |
 | `http://localhost:8080/api/hello` | Backend hello endpoint. |
+| `http://localhost:8080/api/municipalities?name=Madrid` | Backend municipality search. |
 | `http://localhost:8080/swagger-ui.html` | Swagger UI from the backend. |
 | `http://localhost:8080/v3/api-docs` | OpenAPI definition. |
 
-Validate the main endpoints:
+Validate the endpoints:
 
 ```bash
 curl -fsS http://localhost:8080/api/health
 curl -fsS http://localhost:8080/api/hello
-curl -fsS http://localhost:4200/api/health
-curl -fsS http://localhost:4200/api/hello
+curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
+curl --get --data-urlencode 'name=malaga' http://localhost:8080/api/municipalities
+curl -fsS http://localhost:4200/api/municipalities?name=Madrid
 ```
 
 Stop the containers:
@@ -103,24 +108,7 @@ If you want to remove containers and networks more aggressively, run:
 docker compose down --remove-orphans
 ```
 
-## Manual local development
-
-### Prerequisites
-
-For local code development, install:
-
-- Java 21.
-- Node.js `22.22.3+`, `24.15.0+` or `26+`.
-- npm bundled with Node.js.
-
-Use the exact command below only if you do not want to install Java globally.
-
-```bash
-export JAVA_HOME=/Users/niles/tools/jdk-21.0.12.1+1/Contents/Home
-export PATH="$JAVA_HOME/bin:$PATH"
-```
-
-If your machine already has Java 21 on the `PATH`, you can skip those lines.
+## Local development workflow
 
 ### Start the backend
 
@@ -129,14 +117,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Windows:
-
-```cmd
-cd backend
-mvnw.cmd spring-boot:run
-```
-
-Keep this terminal open while working.
+On Windows, use `mvnw.cmd` instead of `./mvnw`.
 
 ### Start the frontend
 
@@ -146,12 +127,12 @@ npm ci
 npm start
 ```
 
-The frontend is served by Angular Dev Server at `http://localhost:4200`. It uses `proxy.conf.json` to forward any request to `/api` to `http://localhost:8080`.
+The frontend runs on `http://localhost:4200` with a dev proxy forwarding `/api` requests to `http://localhost:8080`.
 
-### Useful development commands
+### Test commands
 
 ```bash
-# Backend tests
+# Backend unit tests
 cd backend
 ./mvnw test
 
@@ -164,11 +145,16 @@ cd frontend
 npm run build
 ```
 
-If you want to watch logs while the stack is running with Docker Compose:
+### Using a local AEMET key without Docker
+
+Copy `.env.example` to `.env` in the repository root and set your `AEMET_API_KEY`. Spring Boot will automatically import the file via `spring.config.import` and the key will be available to the AEMET client.
 
 ```bash
-docker compose logs -f backend
-docker compose logs -f frontend
+# From backend/ directory
+./mvnw spring-boot:run
+
+# In another terminal
+curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
 ```
 
 ## Building the container images from source
@@ -193,11 +179,11 @@ docker compose up -d
 The project publishes two images:
 
 ```text
-ghcr.io/dapriad/technical-weather-app-backend
-ghcr.io/dapriad/technical-weather-app-frontend
+ghcr.io/dapriad/technical-weather-app-backend:latest
+ghcr.io/dapriad/technical-weather-app-frontend:latest
 ```
 
-Each image is currently published for these CPU architectures:
+Each image is published for these CPU architectures:
 
 - `linux/amd64`
 - `linux/arm64`
@@ -237,11 +223,19 @@ The workflow does not depend on any stored secrets besides `GITHUB_TOKEN`.
 The backend package is organized in a very flat way on purpose:
 
 - `backend/src/main/java/com/dapriad/weather/api`
-  - REST controllers.
+  - Scaffold controllers (health/hello).
 - `backend/src/main/java/com/dapriad/weather/config`
-  - Spring beans.
-- `backend/src/main/java/com/dapriad/weather`
-  - Application entrypoint.
+  - OpenAPI configuration.
+- `backend/src/main/java/com/dapriad/weather/domain/model/`
+  - DDD domain model.
+- `backend/src/main/java/com/dapriad/weather/domain/port/`
+  - Ports (Hexagonal architecture).
+- `backend/src/main/java/com/dapriad/weather/application/`
+  - Application use cases and services.
+- `backend/src/main/java/com/dapriad/weather/infrastructure/adapter/`
+  - Inbound (REST controllers) and outbound (AEMET client/adapter).
+- `backend/src/main/java/com/dapriad/weather/shared/api/`
+  - Global error handler.
 
 ### Frontend
 
@@ -254,11 +248,6 @@ The Angular application is a basic standalone app:
 The root service configuration is in:
 
 - `frontend/src/app/app.config.ts`
-
-### API documentation
-
-- Generated OpenAPI definition: `http://localhost:8080/v3/api-docs`
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ## Troubleshooting
 
