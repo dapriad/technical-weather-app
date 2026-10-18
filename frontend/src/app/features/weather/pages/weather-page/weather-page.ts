@@ -27,7 +27,7 @@ import { MunicipalitySearchStore } from '../../services/municipality-search.stor
 export class WeatherPage implements OnInit {
   protected readonly searchStore = inject(MunicipalitySearchStore);
   protected readonly forecastStore = inject(ForecastStore);
-  protected readonly searchTerm = signal('');
+  protected readonly searchTerm = signal<string | null>(null);
 
   private readonly dateFormatter = new Intl.DateTimeFormat('es-ES', {
     weekday: 'long',
@@ -62,7 +62,7 @@ export class WeatherPage implements OnInit {
   }
 
   protected onCleared(): void {
-    this.searchTerm.set('');
+    this.searchTerm.set(null);
     this.searchStore.clear();
     this.forecastStore.clearMunicipality();
   }

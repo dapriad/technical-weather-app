@@ -5,6 +5,20 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 
 import { Municipality } from '../../models/municipality.model';
 
+const NON_TYPING_KEYS = new Set([
+  'Enter',
+  'Escape',
+  'Tab',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'Shift',
+  'Control',
+  'Alt',
+  'Meta',
+]);
+
 @Component({
   imports: [AutoCompleteModule, FormsModule],
   selector: 'app-municipality-autocomplete',
@@ -13,7 +27,7 @@ import { Municipality } from '../../models/municipality.model';
 })
 export class MunicipalityAutocomplete {
   readonly suggestions = input<Municipality[]>([]);
-  readonly value = model<string>('');
+  readonly value = model<string | null>(null);
 
   readonly search = output<string>();
   readonly selected = output<Municipality>();
@@ -32,7 +46,11 @@ export class MunicipalityAutocomplete {
     this.cleared.emit();
   }
 
-  protected onTyping(): void {
+  protected onKeyDown(event: KeyboardEvent): void {
+    if (NON_TYPING_KEYS.has(event.key)) {
+      return;
+    }
+
     this.typing.emit();
   }
 }
