@@ -43,7 +43,7 @@ The municipality search and forecast endpoints require an AEMET OpenData API key
 1. Visit https://opendata.aemet.es/centrodedescargas/inicio
 2. Register with your email.
 3. Wait for the confirmation email (usually a few minutes).
-4. Use your email as the API key.
+4. Use the API key received by email.
 
 **Important:** Each AEMET request is a two-step call (envelope + data URL) and the backend does not cache yet. The frontend loads the municipality catalog once in the background and filters locally when it is available, but forecast requests still call AEMET on every selection or unit change.
 

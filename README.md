@@ -199,11 +199,11 @@ The GitHub Actions workflow publishes both images for `linux/amd64` and `linux/a
 - The forecast endpoint calls AEMET's `GET /api/prediccion/especifica/municipio/diaria/{id}` API.
 - AEMET returns a two-step response: first an envelope with a data URL, then the JSON payload from that URL.
 - The AEMET data URL host is validated against `opendata.aemet.es` before the second request.
-- The municipality list and forecasts are requested on every call (no caching in this iteration). Caching is planned as a performance improvement.
+- The backend does not cache AEMET responses. The frontend loads the municipality catalog once in memory and filters locally when available; forecast requests still call AEMET on every refresh.
 - Municipality IDs are normalized to the five-digit INE code. The forecast endpoint also accepts the AEMET maestro `id` prefix.
 - Forecast average temperature is calculated from AEMET's available `temperatura.dato` values, with a fallback to `(maxima + minima) / 2`.
 - Search is case and accent insensitive.
-- No database is used; all data lives in memory for the duration of each request.
+- No database is used; backend data lives only in memory for the duration of each request.
 
 ## Documentation
 
