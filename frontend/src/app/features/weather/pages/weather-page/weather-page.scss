@@ -7,27 +7,150 @@
   min-height: 100dvh;
   place-items: center;
   padding: 2rem;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      color-mix(in srgb, var(--p-primary-color, #3b82f6) 12%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      var(--p-surface-50, #f8fafc),
+      var(--p-surface-100, #f1f5f9)
+    );
 }
 
 .weather-card {
-  width: min(760px, 100%);
+  width: min(780px, 100%);
+}
+
+.weather-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.weather-header__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--p-primary-color, #3b82f6) 14%, transparent);
+  color: var(--p-primary-color, #2563eb);
+  font-size: 1.5rem;
+}
+
+.weather-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.weather-header p {
+  margin: 0.2rem 0 0;
+  color: var(--p-text-muted-color);
 }
 
 .search-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 180px;
+  grid-template-columns: minmax(0, 1fr) 190px;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.field__label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field__label .pi {
+  font-size: 0.8rem;
+}
+
+.field__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.78rem;
+}
+
+.field__hint--warning {
+  color: var(--p-orange-600, #ea580c);
+}
+
+.forecast-area {
+  min-height: 14rem;
+}
+
+.state {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.state__message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.9rem;
+}
+
+.state--error {
+  justify-items: start;
 }
 
 .empty-state {
-  color: var(--p-text-muted-color);
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.empty-state__icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--p-primary-color, #3b82f6) 14%, transparent);
+  color: var(--p-primary-color, #2563eb);
+  font-size: 1.5rem;
+}
+
+.empty-state h2 {
   margin: 0;
+  font-size: 1.15rem;
+}
+
+.empty-state p {
+  max-width: 32rem;
+  margin: 0;
+  color: var(--p-text-muted-color);
 }
 
 @media (max-width: 600px) {
   .weather-page {
     padding: 1rem;
+  }
+
+  .weather-header {
+    align-items: flex-start;
   }
 
   .search-row {

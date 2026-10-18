@@ -31,7 +31,11 @@ describe('ForecastCard', () => {
     expect(text).toContain('Madrid');
     expect(text).toContain('73');
     expect(text).toContain('°F');
-    expect(text).toContain('00-06');
+    expect(text).toContain('Temperatura media');
+    expect(text).toContain('Probabilidad de lluvia');
+    expect(text).toContain('Madrugada');
+    expect(text).toContain('00–06 h');
     expect(text).toContain('10%');
+    expect(text).toContain('Datos de AEMET');
   });
 });

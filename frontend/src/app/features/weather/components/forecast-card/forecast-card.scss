@@ -1,58 +1,157 @@
+:host {
+  display: block;
+}
+
 .forecast-header {
   margin-bottom: 1.5rem;
 }
 
 .forecast-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0;
   font-size: 1.75rem;
 }
 
+.forecast-header h2 .pi {
+  color: var(--p-primary-color, #2563eb);
+  font-size: 1.15rem;
+}
+
 .forecast-header p {
-  margin: 0.25rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
   color: var(--p-text-muted-color);
+}
+
+.forecast-header p .pi {
+  font-size: 0.85rem;
 }
 
 .temperature-row {
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
+.temperature-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--p-primary-color, #3b82f6) 12%, transparent);
+  color: var(--p-primary-color, #2563eb);
+  font-size: 1.75rem;
+}
+
+.temperature-block {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.temperature-label {
+  color: var(--p-text-muted-color);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.temperature-value {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 .temperature {
-  font-size: clamp(3rem, 10vw, 4.5rem);
+  font-size: clamp(2.75rem, 9vw, 4rem);
   font-weight: 700;
   line-height: 1;
   color: var(--p-text-color);
 }
 
 .unit {
-  margin-top: 0.5rem;
-  font-size: 1.5rem;
+  margin-top: 0.35rem;
+  font-size: 1.35rem;
   font-weight: 600;
   color: var(--p-text-muted-color);
+}
+
+.precipitation {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--p-content-border-color, #e2e8f0);
+}
+
+.section-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.section-heading h3 .pi {
+  color: var(--p-primary-color, #2563eb);
+}
+
+.section-heading p {
+  margin: 0.25rem 0 1rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
 }
 
 .precipitation-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .precipitation-item {
   display: grid;
-  justify-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
+  padding: 0.75rem;
+  border: 1px solid var(--p-content-border-color, #e2e8f0);
+  border-radius: 0.75rem;
+  background: var(--p-surface-50, #f8fafc);
 }
 
-.probability {
-  font-size: 1.125rem;
+.period-name {
   font-weight: 650;
 }
 
-.period {
+.period-range {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   color: var(--p-text-muted-color);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+}
+
+.period-range .pi {
+  font-size: 0.75rem;
+}
+
+.probability {
+  margin-top: 0.15rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.forecast-source {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--p-content-border-color, #e2e8f0);
+  color: var(--p-text-muted-color);
+  font-size: 0.78rem;
 }
 
 @media (max-width: 600px) {

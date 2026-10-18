@@ -47,13 +47,54 @@ describe('MunicipalitySearchStore', () => {
     store.search('mad');
     await wait(450);
 
+    expect(store.searching()).toBe(true);
+
     httpMock
       .expectOne((req) => req.url === '/api/municipalities' && req.params.get('name') === 'mad')
       .flush([{ id: '28079', name: 'Madrid' }]);
 
     await wait(0);
 
+    expect(store.searching()).toBe(false);
     expect(store.suggestions()).toEqual([{ id: '28079', name: 'Madrid' }]);
+  });
+
+  it('reports remote search errors and keeps searching', async () => {
+    store.search('mad');
+    await wait(450);
+
+    httpMock
+      .expectOne((req) => req.url === '/api/municipalities' && req.params.get('name') === 'mad')
+      .flush(null, { status: 500, statusText: 'Server Error' });
+
+    await wait(0);
+
+    expect(store.searchError()).toBe(true);
+    expect(store.searching()).toBe(false);
+    expect(store.suggestions()).toEqual([]);
+
+    store.search('madr');
+    await wait(450);
+
+    httpMock
+      .expectOne((req) => req.url === '/api/municipalities' && req.params.get('name') === 'madr')
+      .flush([{ id: '28079', name: 'Madrid' }]);
+
+    await wait(0);
+
+    expect(store.searchError()).toBe(false);
+    expect(store.suggestions()).toEqual([{ id: '28079', name: 'Madrid' }]);
+  });
+
+  it('reports catalog loading errors', () => {
+    store.loadCatalog();
+
+    httpMock
+      .expectOne('/api/municipalities')
+      .flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+    expect(store.catalogLoading()).toBe(false);
+    expect(store.catalogError()).toBe(true);
   });
 
   it('does not search remotely below three characters before the catalog is loaded', async () => {

@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -13,6 +14,7 @@ import { MunicipalitySearchStore } from '../../services/municipality-search.stor
 
 @Component({
   imports: [
+    ButtonModule,
     CardModule,
     ForecastCard,
     MessageModule,
@@ -69,5 +71,13 @@ export class WeatherPage implements OnInit {
 
   protected onUnitChange(unit: TemperatureUnit): void {
     this.forecastStore.changeUnit(unit);
+  }
+
+  protected onRetry(): void {
+    const municipality = this.forecastStore.selectedMunicipality();
+
+    if (municipality) {
+      this.forecastStore.selectMunicipality(municipality);
+    }
   }
 }

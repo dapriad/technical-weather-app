@@ -1,21 +1,55 @@
 <p-card>
   <div class="forecast-header">
-    <h2>{{ municipalityName() }}</h2>
-    <p>{{ dateLabel() }}</p>
+    <h2>
+      <i class="pi pi-map-marker" aria-hidden="true"></i>
+      {{ municipalityName() }}
+    </h2>
+    <p>
+      <i class="pi pi-calendar" aria-hidden="true"></i>
+      {{ dateLabel() }}
+    </p>
   </div>
 
   <div class="temperature-row">
-    <span class="temperature">{{ forecast().averageTemperature }}</span>
-    <span class="unit">{{ unitLabel() }}</span>
+    <span class="temperature-icon" aria-hidden="true">
+      <i class="pi pi-sun"></i>
+    </span>
+
+    <div class="temperature-block">
+      <span class="temperature-label">Temperatura media</span>
+      <div class="temperature-value">
+        <span class="temperature">{{ forecast().averageTemperature }}</span>
+        <span class="unit">{{ unitLabel() }}</span>
+      </div>
+    </div>
   </div>
 
-  <div class="precipitation-grid">
-    @for (item of forecast().precipitationProbability; track item.period) {
-      <div class="precipitation-item">
-        <span class="probability">{{ item.probability }}%</span>
-        <p-progressbar [value]="item.probability" [showValue]="false" />
-        <span class="period">{{ item.period }}</span>
-      </div>
-    }
-  </div>
+  <section class="precipitation">
+    <div class="section-heading">
+      <h3>
+        <i class="pi pi-cloud" aria-hidden="true"></i>
+        Probabilidad de lluvia
+      </h3>
+      <p>Precipitación esperada por franja horaria</p>
+    </div>
+
+    <div class="precipitation-grid">
+      @for (item of forecast().precipitationProbability; track item.period) {
+        <div class="precipitation-item" [attr.aria-label]="precipitationLabel(item)">
+          <span class="period-name">{{ periodLabel(item.period) }}</span>
+          <span class="period-range">
+            <i class="pi pi-clock" aria-hidden="true"></i>
+            {{ periodRange(item.period) }}
+          </span>
+          <span class="probability">{{ item.probability }}%</span>
+          <p-progressbar [value]="item.probability" [showValue]="false" />
+        </div>
+      }
+    </div>
+  </section>
+
+  <footer class="forecast-source">
+    <i class="pi pi-info-circle" aria-hidden="true"></i>
+    Datos de AEMET
+  </footer>
 </p-card>

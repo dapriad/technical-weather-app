@@ -1,34 +1,103 @@
 <main class="weather-page">
   <p-card class="weather-card">
-    <div class="search-row">
-      <app-municipality-autocomplete
-        [suggestions]="searchStore.suggestions()"
-        [value]="searchTerm()"
-        (valueChange)="searchTerm.set($event)"
-        (search)="onSearch($event)"
-        (selected)="onSelect($event)"
-        (cleared)="onCleared()"
-        (typing)="onTyping()"
-      />
+    <header class="weather-header">
+      <span class="weather-header__icon" aria-hidden="true">
+        <i class="pi pi-sun"></i>
+      </span>
+      <div>
+        <h1>Predicción de mañana</h1>
+        <p>Consulta el tiempo de mañana en tu municipio</p>
+      </div>
+    </header>
 
-      <app-temperature-unit-select
-        [value]="forecastStore.temperatureUnit()"
-        (change)="onUnitChange($event)"
-      />
+    <div class="search-row">
+      <div class="field">
+        <label class="field__label" for="municipality-input">
+          <i class="pi pi-map-marker" aria-hidden="true"></i>
+          Municipio
+        </label>
+
+        <app-municipality-autocomplete
+          [suggestions]="searchStore.suggestions()"
+          [value]="searchTerm()"
+          (valueChange)="searchTerm.set($event)"
+          (search)="onSearch($event)"
+          (selected)="onSelect($event)"
+          (cleared)="onCleared()"
+          (typing)="onTyping()"
+        />
+
+        @if (searchStore.catalogLoading()) {
+          <small class="field__hint">
+            <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+            Cargando municipios…
+          </small>
+        } @else if (searchStore.searching()) {
+          <small class="field__hint">
+            <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+            Buscando…
+          </small>
+        } @else if (searchStore.catalogError()) {
+          <small class="field__hint field__hint--warning">
+            <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+            No se pudo cargar el listado; se buscará en línea.
+          </small>
+        } @else if (searchStore.searchError()) {
+          <small class="field__hint field__hint--warning">
+            <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+            No se pudo buscar. Inténtalo de nuevo.
+          </small>
+        }
+      </div>
+
+      <div class="field field--unit">
+        <label class="field__label" for="temperature-unit-input">
+          <i class="pi pi-sliders-h" aria-hidden="true"></i>
+          Unidad
+        </label>
+
+        <app-temperature-unit-select
+          [value]="forecastStore.temperatureUnit()"
+          (change)="onUnitChange($event)"
+        />
+      </div>
     </div>
 
-    @if (forecastStore.loading()) {
-      <p-skeleton height="12rem" />
-    } @else if (forecastStore.error()) {
-      <p-message severity="error">{{ forecastStore.error() }}</p-message>
-    } @else if (forecastStore.selectedMunicipality() && forecastStore.forecast()) {
-      <app-forecast-card
-        [municipalityName]="forecastStore.selectedMunicipality()!.name"
-        [dateLabel]="forecastDate()"
-        [forecast]="forecastStore.forecast()!"
-      />
-    } @else {
-      <p class="empty-state">Selecciona un municipio para ver la predicción de mañana.</p>
-    }
+    <section class="forecast-area" aria-live="polite">
+      @if (forecastStore.loading()) {
+        <div class="state state--loading">
+          <div class="state__message">
+            <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+            <span>Cargando predicción…</span>
+          </div>
+          <p-skeleton height="12rem" />
+        </div>
+      } @else if (forecastStore.error()) {
+        <div class="state state--error">
+          <p-message severity="error">{{ forecastStore.error() }}</p-message>
+          <p-button
+            label="Reintentar"
+            icon="pi pi-refresh"
+            severity="secondary"
+            [text]="true"
+            (onClick)="onRetry()"
+          />
+        </div>
+      } @else if (forecastStore.selectedMunicipality() && forecastStore.forecast()) {
+        <app-forecast-card
+          [municipalityName]="forecastStore.selectedMunicipality()!.name"
+          [dateLabel]="forecastDate()"
+          [forecast]="forecastStore.forecast()!"
+        />
+      } @else {
+        <div class="empty-state">
+          <span class="empty-state__icon" aria-hidden="true">
+            <i class="pi pi-map-marker"></i>
+          </span>
+          <h2>Busca tu municipio</h2>
+          <p>Escribe al menos 3 letras y elige un resultado para ver la predicción de mañana.</p>
+        </div>
+      }
+    </section>
   </p-card>
 </main>

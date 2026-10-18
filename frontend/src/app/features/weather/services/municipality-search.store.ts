@@ -1,6 +1,14 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  of,
+  switchMap,
+} from 'rxjs';
 
 import { Municipality } from '../models/municipality.model';
 import { normalizeMunicipalityName } from '../utils/municipality-name.util';
@@ -17,6 +25,9 @@ export class MunicipalitySearchStore {
 
   readonly catalog = signal<Municipality[] | null>(null);
   readonly catalogLoading = signal(false);
+  readonly catalogError = signal(false);
+  readonly searching = signal(false);
+  readonly searchError = signal(false);
   readonly suggestions = signal<Municipality[]>([]);
   readonly hasCatalog = computed(() => this.catalog() !== null);
 
@@ -26,11 +37,21 @@ export class MunicipalitySearchStore {
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query) => {
+          this.searchError.set(false);
+
           if (this.catalog() || query.trim().length < MIN_QUERY_LENGTH) {
             return of<Municipality[]>([]);
           }
 
-          return this.api.searchMunicipalities(query.trim());
+          this.searching.set(true);
+
+          return this.api.searchMunicipalities(query.trim()).pipe(
+            catchError(() => {
+              this.searchError.set(true);
+              return of<Municipality[]>([]);
+            }),
+            finalize(() => this.searching.set(false)),
+          );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -46,6 +67,7 @@ export class MunicipalitySearchStore {
       return;
     }
 
+    this.catalogError.set(false);
     this.catalogLoading.set(true);
 
     this.api
@@ -55,10 +77,12 @@ export class MunicipalitySearchStore {
         next: (catalog) => {
           this.catalog.set(catalog);
           this.catalogLoading.set(false);
+          this.catalogError.set(false);
           this.applyLocalSearch(this.lastQuery());
         },
         error: () => {
           this.catalogLoading.set(false);
+          this.catalogError.set(true);
         },
       });
   }
@@ -66,6 +90,7 @@ export class MunicipalitySearchStore {
   search(term: string): void {
     const query = term.trim();
     this.lastQuery.set(query);
+    this.searchError.set(false);
 
     if (this.catalog()) {
       this.applyLocalSearch(query);
@@ -77,6 +102,7 @@ export class MunicipalitySearchStore {
 
   clear(): void {
     this.lastQuery.set('');
+    this.searchError.set(false);
     this.suggestions.set([]);
   }
 

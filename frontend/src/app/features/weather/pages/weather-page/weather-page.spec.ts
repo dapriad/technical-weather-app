@@ -11,6 +11,10 @@ import { WeatherPage } from './weather-page';
 describe('WeatherPage', () => {
   let searchStore: {
     suggestions: ReturnType<typeof signal<Municipality[]>>;
+    catalogLoading: ReturnType<typeof signal<boolean>>;
+    catalogError: ReturnType<typeof signal<boolean>>;
+    searching: ReturnType<typeof signal<boolean>>;
+    searchError: ReturnType<typeof signal<boolean>>;
     loadCatalog: ReturnType<typeof vi.fn>;
     search: ReturnType<typeof vi.fn>;
     clear: ReturnType<typeof vi.fn>;
@@ -30,6 +34,10 @@ describe('WeatherPage', () => {
   beforeEach(() => {
     searchStore = {
       suggestions: signal<Municipality[]>([]),
+      catalogLoading: signal(false),
+      catalogError: signal(false),
+      searching: signal(false),
+      searchError: signal(false),
       loadCatalog: vi.fn(),
       search: vi.fn(),
       clear: vi.fn(),
@@ -87,5 +95,15 @@ describe('WeatherPage', () => {
     (component as any).onTyping();
 
     expect(forecastStore.clearMunicipality).toHaveBeenCalled();
+  });
+
+  it('retries the forecast with the selected municipality', () => {
+    const municipality: Municipality = { id: '28079', name: 'Madrid' };
+    forecastStore.selectedMunicipality.set(municipality);
+    const component = TestBed.createComponent(WeatherPage).componentInstance;
+
+    (component as any).onRetry();
+
+    expect(forecastStore.selectMunicipality).toHaveBeenCalledWith(municipality);
   });
 });
