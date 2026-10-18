@@ -128,6 +128,47 @@ describe('MunicipalitySearchStore', () => {
     expect(store.suggestions()).toEqual([{ id: '29067', name: 'Málaga' }]);
   });
 
+  it('prioritizes prefix matches over substring matches', () => {
+    store.loadCatalog();
+    httpMock.expectOne('/api/municipalities').flush([
+      { id: '18001', name: 'Fuente Alcántara' },
+      { id: '02001', name: 'Alcóntar' },
+      { id: '28079', name: 'Madrid' },
+    ]);
+
+    store.search('alc');
+
+    expect(store.suggestions()).toEqual([{ id: '02001', name: 'Alcóntar' }]);
+  });
+
+  it('falls back to substring matches when there are no prefix matches', () => {
+    store.loadCatalog();
+    httpMock.expectOne('/api/municipalities').flush([
+      { id: '18001', name: 'Fuente Alcántara' },
+      { id: '28079', name: 'Madrid' },
+    ]);
+
+    store.search('alc');
+
+    expect(store.suggestions()).toEqual([{ id: '18001', name: 'Fuente Alcántara' }]);
+  });
+
+  it('limits local suggestions to twenty results', () => {
+    const catalog = Array.from({ length: 25 }, (_, index) => ({
+      id: String(index).padStart(5, '0'),
+      name: `Alcalá ${String(index).padStart(2, '0')}`,
+    }));
+
+    store.loadCatalog();
+    httpMock.expectOne('/api/municipalities').flush(catalog);
+
+    store.search('alc');
+
+    expect(store.suggestions()).toHaveLength(20);
+    expect(store.suggestions()[0].name).toBe('Alcalá 00');
+    expect(store.suggestions()[19].name).toBe('Alcalá 19');
+  });
+
   it('ignores stale remote results once the catalog is loaded', async () => {
     store.search('mad');
     await wait(450);

@@ -6,6 +6,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   finalize,
+  map,
   of,
   switchMap,
 } from 'rxjs';
@@ -15,6 +16,34 @@ import { normalizeMunicipalityName } from '../utils/municipality-name.util';
 import { WeatherApiService } from './weather-api.service';
 
 const MIN_QUERY_LENGTH = 3;
+const MAX_SUGGESTIONS = 20;
+
+function rankAndLimitSuggestions(municipalities: Municipality[], query: string): Municipality[] {
+  const normalizedQuery = normalizeMunicipalityName(query);
+
+  if (normalizedQuery.length < MIN_QUERY_LENGTH) {
+    return [];
+  }
+
+  const prefixMatches: Municipality[] = [];
+  const containsMatches: Municipality[] = [];
+
+  for (const municipality of municipalities) {
+    const normalizedName = normalizeMunicipalityName(municipality.name);
+
+    if (normalizedName.startsWith(normalizedQuery)) {
+      prefixMatches.push(municipality);
+    } else if (normalizedName.includes(normalizedQuery)) {
+      containsMatches.push(municipality);
+    }
+  }
+
+  const matches = prefixMatches.length > 0 ? prefixMatches : containsMatches;
+
+  return matches
+    .sort((first, second) => first.name.localeCompare(second.name, 'es'))
+    .slice(0, MAX_SUGGESTIONS);
+}
 
 @Injectable({ providedIn: 'root' })
 export class MunicipalitySearchStore {
@@ -46,6 +75,7 @@ export class MunicipalitySearchStore {
           this.searching.set(true);
 
           return this.api.searchMunicipalities(query.trim()).pipe(
+            map((suggestions) => rankAndLimitSuggestions(suggestions, query)),
             catchError(() => {
               this.searchError.set(true);
               return of<Municipality[]>([]);
@@ -113,15 +143,6 @@ export class MunicipalitySearchStore {
       return;
     }
 
-    const normalizedQuery = normalizeMunicipalityName(query);
-
-    if (normalizedQuery.length < MIN_QUERY_LENGTH) {
-      this.suggestions.set([]);
-      return;
-    }
-
-    this.suggestions.set(
-      catalog.filter((municipality) => normalizeMunicipalityName(municipality.name).includes(normalizedQuery)),
-    );
+    this.suggestions.set(rankAndLimitSuggestions(catalog, query));
   }
 }
