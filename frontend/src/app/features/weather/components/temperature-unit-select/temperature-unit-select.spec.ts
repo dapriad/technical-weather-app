@@ -14,6 +14,11 @@ describe('TemperatureUnitSelect', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('defaults to Celsius', () => {
+    const fixture = TestBed.createComponent(TemperatureUnitSelect);
+    expect(fixture.componentInstance.value()).toBe('G_CEL');
+  });
+
   it('emits the selected unit', () => {
     const fixture = TestBed.createComponent(TemperatureUnitSelect);
     const component = fixture.componentInstance;
@@ -24,5 +29,17 @@ describe('TemperatureUnitSelect', () => {
 
     expect(spy).toHaveBeenCalledWith('G_FAH');
     expect(component.value()).toBe('G_FAH');
+  });
+
+  it('resets to Celsius when the value is cleared', () => {
+    const fixture = TestBed.createComponent(TemperatureUnitSelect);
+    const component = fixture.componentInstance;
+    const spy = vi.fn();
+
+    component.change.subscribe(spy);
+    (component as any).onChange({ originalEvent: null, value: null });
+
+    expect(spy).toHaveBeenCalledWith('G_CEL');
+    expect(component.value()).toBe('G_CEL');
   });
 });

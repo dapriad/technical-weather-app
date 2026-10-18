@@ -18,7 +18,7 @@ describe('WeatherPage', () => {
 
   let forecastStore: {
     selectedMunicipality: ReturnType<typeof signal<Municipality | null>>;
-    temperatureUnit: ReturnType<typeof signal<TemperatureUnit | null>>;
+    temperatureUnit: ReturnType<typeof signal<TemperatureUnit>>;
     forecast: ReturnType<typeof signal<Forecast | null>>;
     loading: ReturnType<typeof signal<boolean>>;
     error: ReturnType<typeof signal<string | null>>;
@@ -37,7 +37,7 @@ describe('WeatherPage', () => {
 
     forecastStore = {
       selectedMunicipality: signal<Municipality | null>(null),
-      temperatureUnit: signal<TemperatureUnit | null>(null),
+      temperatureUnit: signal<TemperatureUnit>('G_CEL'),
       forecast: signal<Forecast | null>(null),
       loading: signal(false),
       error: signal<string | null>(null),

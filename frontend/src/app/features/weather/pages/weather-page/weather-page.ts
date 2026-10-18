@@ -67,7 +67,7 @@ export class WeatherPage implements OnInit {
     this.forecastStore.clearMunicipality();
   }
 
-  protected onUnitChange(unit: TemperatureUnit | null): void {
+  protected onUnitChange(unit: TemperatureUnit): void {
     this.forecastStore.changeUnit(unit);
   }
 }

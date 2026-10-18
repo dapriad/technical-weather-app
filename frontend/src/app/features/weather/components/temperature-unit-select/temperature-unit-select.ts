@@ -21,11 +21,11 @@ export class TemperatureUnitSelect {
     { label: 'Fahrenheit (°F)', value: 'G_FAH' },
   ];
 
-  readonly value = model<TemperatureUnit | null>(null);
-  readonly change = output<TemperatureUnit | null>();
+  readonly value = model<TemperatureUnit>('G_CEL');
+  readonly change = output<TemperatureUnit>();
 
   protected onChange(event: SelectChangeEvent): void {
-    const value = (event.value ?? null) as TemperatureUnit | null;
+    const value = (event.value ?? 'G_CEL') as TemperatureUnit;
     this.value.set(value);
     this.change.emit(value);
   }

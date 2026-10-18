@@ -14,6 +14,10 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
       },
+      translation: {
+        emptyMessage: 'Sin resultados',
+        emptySearchMessage: 'Sin resultados',
+      },
     }),
   ],
 };

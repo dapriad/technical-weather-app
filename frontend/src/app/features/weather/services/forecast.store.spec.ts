@@ -30,11 +30,15 @@ describe('ForecastStore', () => {
     httpMock.verify();
   });
 
+  it('defaults to Celsius', () => {
+    expect(store.temperatureUnit()).toBe('G_CEL');
+  });
+
   it('loads forecast when a municipality is selected', () => {
     store.selectMunicipality({ id: '28079', name: 'Madrid' });
 
     httpMock
-      .expectOne((req) => req.url === '/api/forecast' && !req.params.has('temperatureUnit'))
+      .expectOne((req) => req.url === '/api/forecast' && req.params.get('temperatureUnit') === 'G_CEL')
       .flush(forecast);
 
     expect(store.forecast()).toEqual(forecast);
@@ -44,7 +48,7 @@ describe('ForecastStore', () => {
   it('reloads forecast when the unit changes', () => {
     store.selectMunicipality({ id: '28079', name: 'Madrid' });
     httpMock
-      .expectOne((req) => req.url === '/api/forecast' && !req.params.has('temperatureUnit'))
+      .expectOne((req) => req.url === '/api/forecast' && req.params.get('temperatureUnit') === 'G_CEL')
       .flush(forecast);
 
     store.changeUnit('G_FAH');
@@ -59,7 +63,7 @@ describe('ForecastStore', () => {
   it('clears forecast when municipality is cleared', () => {
     store.selectMunicipality({ id: '28079', name: 'Madrid' });
     httpMock
-      .expectOne((req) => req.url === '/api/forecast' && !req.params.has('temperatureUnit'))
+      .expectOne((req) => req.url === '/api/forecast' && req.params.get('temperatureUnit') === 'G_CEL')
       .flush(forecast);
 
     store.clearMunicipality();

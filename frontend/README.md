@@ -42,6 +42,7 @@ Behavior:
 - While the catalog is loading, the autocomplete can still search through the backend API.
 - Once the catalog is loaded, filtering happens locally after at least three characters.
 - Selecting a municipality loads tomorrow's forecast.
+- The temperature unit defaults to Celsius.
 - Changing the temperature unit refreshes the forecast.
 - Clearing the municipality clears the forecast.
 

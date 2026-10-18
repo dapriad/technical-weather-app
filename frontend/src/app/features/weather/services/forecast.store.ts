@@ -10,7 +10,7 @@ import { WeatherApiService } from './weather-api.service';
 
 interface ForecastRequest {
   municipalityId: string;
-  temperatureUnit: TemperatureUnit | null;
+  temperatureUnit: TemperatureUnit;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +20,7 @@ export class ForecastStore {
   private readonly request$ = new Subject<ForecastRequest | null>();
 
   readonly selectedMunicipality = signal<Municipality | null>(null);
-  readonly temperatureUnit = signal<TemperatureUnit | null>(null);
+  readonly temperatureUnit = signal<TemperatureUnit>('G_CEL');
   readonly forecast = signal<Forecast | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -40,7 +40,7 @@ export class ForecastStore {
           this.error.set(null);
 
           return this.api
-            .getForecast(request.municipalityId, request.temperatureUnit ?? undefined)
+            .getForecast(request.municipalityId, request.temperatureUnit)
             .pipe(
               tap((forecast) => this.forecast.set(forecast)),
               catchError((error: unknown) => {
@@ -61,7 +61,7 @@ export class ForecastStore {
     this.loadForecast();
   }
 
-  changeUnit(unit: TemperatureUnit | null): void {
+  changeUnit(unit: TemperatureUnit): void {
     this.temperatureUnit.set(unit);
     this.loadForecast();
   }
