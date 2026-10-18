@@ -63,6 +63,18 @@ describe('MunicipalitySearchStore', () => {
     httpMock.expectNone('/api/municipalities');
   });
 
+  it('does not filter locally below three characters once the catalog is loaded', () => {
+    store.loadCatalog();
+    httpMock.expectOne('/api/municipalities').flush([
+      { id: '27002', name: 'Lugo' },
+      { id: '28079', name: 'Madrid' },
+    ]);
+
+    store.search('lu');
+
+    expect(store.suggestions()).toEqual([]);
+  });
+
   it('filters locally once the catalog is loaded', () => {
     store.loadCatalog();
     httpMock.expectOne('/api/municipalities').flush([

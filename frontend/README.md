@@ -40,7 +40,7 @@ Behavior:
 
 - The municipality autocomplete loads the full catalog once in the background.
 - While the catalog is loading, the autocomplete can still search through the backend API.
-- Once the catalog is loaded, filtering happens locally.
+- Once the catalog is loaded, filtering happens locally after at least three characters.
 - Selecting a municipality loads tomorrow's forecast.
 - Changing the temperature unit refreshes the forecast.
 - Clearing the municipality clears the forecast.

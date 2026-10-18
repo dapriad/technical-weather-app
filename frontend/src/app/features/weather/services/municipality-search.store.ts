@@ -6,6 +6,8 @@ import { Municipality } from '../models/municipality.model';
 import { normalizeMunicipalityName } from '../utils/municipality-name.util';
 import { WeatherApiService } from './weather-api.service';
 
+const MIN_QUERY_LENGTH = 3;
+
 @Injectable({ providedIn: 'root' })
 export class MunicipalitySearchStore {
   private readonly api = inject(WeatherApiService);
@@ -24,7 +26,7 @@ export class MunicipalitySearchStore {
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query) => {
-          if (this.catalog() || query.trim().length < 3) {
+          if (this.catalog() || query.trim().length < MIN_QUERY_LENGTH) {
             return of<Municipality[]>([]);
           }
 
@@ -87,7 +89,7 @@ export class MunicipalitySearchStore {
 
     const normalizedQuery = normalizeMunicipalityName(query);
 
-    if (!normalizedQuery) {
+    if (normalizedQuery.length < MIN_QUERY_LENGTH) {
       this.suggestions.set([]);
       return;
     }
