@@ -1,15 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { Home } from './home';
+import { WeatherPage } from './weather-page';
 
-describe('Home', () => {
+describe('WeatherPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Home],
+      imports: [WeatherPage],
     }).compileComponents();
   });
 
-  it('should create the home', () => {
-    const fixture = TestBed.createComponent(Home);
+  it('should create the page', () => {
+    const fixture = TestBed.createComponent(WeatherPage);
     expect(fixture.componentInstance).toBeTruthy();
   });
 });

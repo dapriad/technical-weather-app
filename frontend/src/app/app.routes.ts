@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
+import { WeatherPage } from './features/weather/pages/weather-page/weather-page';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: WeatherPage },
   { path: '**', redirectTo: '' },
 ];
