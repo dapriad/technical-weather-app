@@ -11,20 +11,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "Scaffold", description = "Health check and hello endpoints for the technical test scaffold")
-public class HelloController {
+@Tag(name = "Health", description = "Backend health check")
+public class HealthController {
 
 	@GetMapping("/health")
 	@Operation(summary = "Health check", description = "Returns the backend health status")
 	@ApiResponse(responseCode = "200", description = "Service is up")
 	public Map<String, String> health() {
 		return Map.of("status", "UP");
-	}
-
-	@GetMapping("/hello")
-	@Operation(summary = "Hello", description = "Returns a greeting message from the Spring Boot backend")
-	@ApiResponse(responseCode = "200", description = "Successful response")
-	public Map<String, String> hello() {
-		return Map.of("message", "Hello from Spring Boot");
 	}
 }

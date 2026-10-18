@@ -14,6 +14,6 @@ public class OpenApiConfig {
 		return new OpenAPI().info(new Info()
 				.title("Technical Weather API")
 				.version("0.0.1-SNAPSHOT")
-				.description("Technical test API scaffold exposing status, greeting and municipality endpoints."));
+				.description("Technical test API exposing health, municipality search and daily forecast endpoints."));
 	}
 }
