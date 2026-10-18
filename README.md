@@ -1,152 +1,161 @@
 # Technical Weather App
 
-Monorepo básico para una prueba técnica con:
+[![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
 
-- **Backend:** Spring Boot 4.1.1 + Java 21 + Maven Wrapper.
-- **Frontend:** Angular 22 + Nginx en Docker.
-- **Contenedores:** Docker Compose local.
-- **Imágenes:** GitHub Container Registry mediante GitHub Actions.
+Technical monorepo for a technical exercise based on Spring Boot and Angular. The repository contains an API, a frontend application, both Docker configurations and a GitHub Actions workflow that publishes public container images to GitHub Container Registry.
 
-## Estructura
+## Current status
+
+This is a runnable scaffold. It currently provides:
+
+- Angular application served through Nginx.
+- Spring Boot REST endpoints exposed through `/api`.
+- Development proxy from Angular to Spring Boot.
+- Local Docker Compose environment.
+- Public GHCR images for `linux/amd64` and `linux/arm64`.
+- Automatic OpenAPI documentation using Springdoc.
+
+There is no database, authentication or external weather integration in this milestone.
+
+## Stack
+
+| Component | Technology | Version |
+|---|---|---|
+| Backend | Java | 21 |
+| Backend | Spring Boot | 4.1.1 |
+| API documentation | Springdoc OpenAPI | 3.1.1 |
+| API documentation | Swagger UI | 5.32.14 |
+| Frontend | Angular | 22.2 |
+| Frontend | TypeScript | 6.0.x |
+| Frontend build image | Node.js | 24 Alpine |
+| Frontend runtime image | Nginx | 1.27 Alpine |
+| Container orchestration | Docker Compose V2 | current |
+
+## Quick start with published images
+
+Start a compatible Docker runtime, then run:
+
+```bash
+git clone https://github.com/dapriad/technical-weather-app.git
+cd technical-weather-app
+
+docker compose pull
+docker compose up -d
+```
+
+Open:
 
 ```text
-.
-├── backend/      # API Spring Boot
-├── frontend/     # SPA Angular
-├── docker-compose.yml
-└── .github/workflows/docker-publish.yml
+http://localhost:4200
+http://localhost:8080/swagger-ui.html
 ```
 
-Cada carpeta mantiene su configuración independiente.
-
-## Endpoints
-
-Backend directo:
-
-- `GET http://localhost:8080/api/health`
-  - `{"status":"UP"}`
-- `GET http://localhost:8080/api/hello`
-  - `{"message":"Hello from Spring Boot"}`
-
-Frontend proxy:
-
-- `GET http://localhost:4200/api/health`
-- `GET http://localhost:4200/api/hello`
-
-## Requisitos para ejecutar en local
-
-- JDK 21, por ejemplo Eclipse Temurin 21.
-- Node.js compatible con Angular 22: `22.22.3+`, `24.15.0+` o `26+`.
-- npm.
-- Docker con Docker Compose v2.
-
-## Ejecución en local sin Docker
-
-### Backend
+Validate the API:
 
 ```bash
-cd backend
-./mvnw test
-./mvnw spring-boot:run
+curl -fsS http://localhost:8080/api/health
+curl -fsS http://localhost:8080/api/hello
+curl -fsS http://localhost:4200/api/health
+curl -fsS http://localhost:4200/api/hello
 ```
 
-El backend levanta en `http://localhost:8080`.
-
-### Frontend
-
-En otra terminal:
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-El proxy de desarrollo está configurado en `proxy.conf.json` y envía las llamadas `/api` al backend en `http://localhost:8080`.
-
-Abrir: `http://localhost:4200`.
-
-Si el backend no está levantado, la aplicación mostrará un estado de error del frontend y el botón `Reload API` volverá a intentar la consulta.
-
-## Ejecución con Docker Compose
-
-### Primero, si usas Colima en macOS
-
-```bash
-colima start
-```
-
-### Construir y ejecutar el stack local
-
-```bash
-docker compose up --build -d
-docker compose logs -f backend frontend
-```
-
-Una vez construido, abre `http://localhost:4200` y prueba:
-
-```bash
-curl http://localhost:8080/api/health
-curl http://localhost:4200/api/health
-curl http://localhost:4200/api/hello
-```
-
-Detener el stack:
+Stop the environment:
 
 ```bash
 docker compose down
 ```
 
-## Imágenes publicadas en GHCR
+For a step-by-step reviewer guide, use the [onboarding documentation](docs/ONBOARDING.md).
 
-Tras subir el repositorio a GitHub, el workflow publicará:
+## Current endpoints
+
+| Method | Path | Response |
+|---|---|---|
+| GET | `/api/health` | `{"status":"UP"}` |
+| GET | `/api/hello` | `{"message":"Hello from Spring Boot"}` |
+| GET | `/swagger-ui.html` | Swagger UI for the Spring Boot API |
+| GET | `/v3/api-docs` | Generated OpenAPI definition |
+
+The same `/api/health` and `/api/hello` paths are available through the frontend when it proxies or forwards requests to `http://localhost:8080`.
+
+## Repository layout
+
+```text
+.
+├── backend/      # Spring Boot API
+├── frontend/     # Angular application
+├── docs/         # Onboarding and API documentation notes
+├── docker-compose.yml
+└── .github/workflows/docker-publish.yml
+```
+
+## Local development
+
+Install Java 21, Node.js and npm compatible with these versions:
+
+- Java 21.
+- Node.js `22.22.3+`, `24.15.0+` or `26+`.
+- npm bundled with Node.js.
+
+Start the backend:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+On Windows, use `mvnw.cmd` instead of `./mvnw`.
+
+In another terminal, start the frontend:
+
+```bash
+cd frontend
+npm ci
+npm start
+```
+
+The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`.
+
+Full local workflow and troubleshooting are documented in [docs/ONBOARDING.md](docs/ONBOARDING.md).
+
+## Tests
+
+Backend:
+
+```bash
+cd backend
+./mvnw test
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm test -- --watch=false
+npm run build
+```
+
+## Container images
+
+The published images are:
 
 ```text
 ghcr.io/dapriad/technical-weather-app-backend:latest
 ghcr.io/dapriad/technical-weather-app-frontend:latest
 ```
 
-Para lanzar las imágenes publicadas:
+Package pages:
 
-```bash
-BACKEND_IMAGE=ghcr.io/dapriad/technical-weather-app-backend:latest \
-FRONTEND_IMAGE=ghcr.io/dapriad/technical-weather-app-frontend:latest \
-docker compose pull
+- [Backend package](https://github.com/users/dapriad/packages/container/package/technical-weather-app-backend)
+- [Frontend package](https://github.com/users/dapriad/packages/container/package/technical-weather-app-frontend)
 
-BACKEND_IMAGE=ghcr.io/dapriad/technical-weather-app-backend:latest \
-FRONTEND_IMAGE=ghcr.io/dapriad/technical-weather-app-frontend:latest \
-docker compose up -d
-```
+The GitHub Actions workflow publishes both images for `linux/amd64` and `linux/arm64`. The workflow runs on pushes to `main`, on version tags, and can also be executed manually.
 
-## CI/CD de imágenes
+## Documentation
 
-El workflow está en `.github/workflows/docker-publish.yml` y se ejecuta con:
+- [Onboarding guide](docs/ONBOARDING.md)
+- [API documentation guide](docs/api/README.md)
 
-- `push` a `main`;
-- `push` de tags `v*`;
-- ejecución manual desde la pestaña Actions.
+## Author
 
-Publica dos imágenes GHCR en paralelo mientras construye `backend/` y `frontend/`. Tras la primera ejecución del workflow, revisa la visibilidad de `technical-weather-app-backend` y `technical-weather-app-frontend` en GitHub Packages y marca ambos paquetes como públicos.
-
-## Git local
-
-El proyecto está preparado para versionar con:
-
-```bash
-git status
-
-git init -b main
-git add .
-git commit -m "chore: scaffold Spring Boot 4 y Angular 22"
-```
-
-Para crear el repositorio público en GitHub, con el CLI `gh` autenticado:
-
-```bash
-gh repo create technical-weather-app --public --source=. --remote=origin --push
-```
-
-## Notas
-
-- No hay base de datos, autenticación ni integración con APIs de clima externas.
-- El objetivo funcional del scaffold es demostrar frontend, backend, proxy, contenedores y publicación.
+Daniel Pribeagu - [@dapriad](https://github.com/dapriad)

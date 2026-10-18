@@ -2,7 +2,7 @@ name: technical-weather-app
 
 services:
   backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-backend:local}
+    image: ${BACKEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-backend:latest}
     build:
       context: ./backend
     container_name: technical-weather-backend
@@ -17,7 +17,7 @@ services:
       start_period: 10s
 
   frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-frontend:local}
+    image: ${FRONTEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-frontend:latest}
     build:
       context: ./frontend
     container_name: technical-weather-frontend

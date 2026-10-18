@@ -12,19 +12,19 @@
 	<artifactId>technical-weather-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>technical-weather-app</name>
-	<description>Technical weather app scaffold</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
+	<description>Technical test monorepo with a Spring Boot API and Angular frontend</description>
+	<url>https://github.com/dapriad/technical-weather-app</url>
 	<developers>
-		<developer/>
+		<developer>
+			<name>Daniel Pribeagu</name>
+			<url>https://github.com/dapriad</url>
+		</developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:https://github.com/dapriad/technical-weather-app.git</connection>
+		<developerConnection>scm:git:https://github.com/dapriad/technical-weather-app.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/dapriad/technical-weather-app</url>
 	</scm>
 	<properties>
 		<java.version>21</java.version>
@@ -33,6 +33,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.1.1</version>
 		</dependency>
 
 		<dependency>
