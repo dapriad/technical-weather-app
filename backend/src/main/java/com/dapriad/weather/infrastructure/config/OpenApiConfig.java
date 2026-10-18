@@ -1,4 +1,4 @@
-package com.dapriad.weather.config;
+package com.dapriad.weather.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +14,6 @@ public class OpenApiConfig {
 		return new OpenAPI().info(new Info()
 				.title("Technical Weather API")
 				.version("0.0.1-SNAPSHOT")
-				.description("Technical test API scaffold exposing status and greeting endpoints."));
+				.description("Technical test API scaffold exposing status, greeting and municipality endpoints."));
 	}
 }
