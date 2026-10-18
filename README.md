@@ -1,5 +1,6 @@
 # Technical Weather App
 
+[![CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml)
 [![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
 
 Technical monorepo for a technical exercise based on Spring Boot and Angular. The repository contains an API with AEMET OpenData integration, an Angular frontend, Docker configurations, and a GitHub Actions workflow that publishes public container images to GitHub Container Registry.
