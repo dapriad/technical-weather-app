@@ -1,1 +1,34 @@
-<main class="weather-page"></main>
+<main class="weather-page">
+  <p-card class="weather-card">
+    <div class="search-row">
+      <app-municipality-autocomplete
+        [suggestions]="searchStore.suggestions()"
+        [value]="searchTerm()"
+        (valueChange)="searchTerm.set($event)"
+        (search)="onSearch($event)"
+        (selected)="onSelect($event)"
+        (cleared)="onCleared()"
+        (typing)="onTyping()"
+      />
+
+      <app-temperature-unit-select
+        [value]="forecastStore.temperatureUnit()"
+        (change)="onUnitChange($event)"
+      />
+    </div>
+
+    @if (forecastStore.loading()) {
+      <p-skeleton height="12rem" />
+    } @else if (forecastStore.error()) {
+      <p-message severity="error">{{ forecastStore.error() }}</p-message>
+    } @else if (forecastStore.selectedMunicipality() && forecastStore.forecast()) {
+      <app-forecast-card
+        [municipalityName]="forecastStore.selectedMunicipality()!.name"
+        [dateLabel]="forecastDate()"
+        [forecast]="forecastStore.forecast()!"
+      />
+    } @else {
+      <p class="empty-state">Selecciona un municipio para ver la predicción de mañana.</p>
+    }
+  </p-card>
+</main>
