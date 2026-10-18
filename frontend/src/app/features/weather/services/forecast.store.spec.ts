@@ -75,11 +75,16 @@ describe('ForecastStore', () => {
     httpMock
       .expectOne((req) => req.url === '/api/forecast')
       .flush(
-        { detail: 'AEMET rate limit exceeded. Please try again later.' },
+        {
+          code: 'RATE_LIMITED',
+          detail: 'AEMET rate limit exceeded. Please try again later.',
+        },
         { status: 503, statusText: 'Service Unavailable' },
       );
 
-    expect(store.error()).toBe('AEMET rate limit exceeded. Please try again later.');
+    expect(store.error()).toBe(
+      'AEMET ha limitado las peticiones. Espera unos segundos y vuelve a intentarlo.',
+    );
     expect(store.forecast()).toBeNull();
     expect(store.loading()).toBe(false);
   });

@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, catchError, finalize, of, switchMap, tap } from 'rxjs';
@@ -6,6 +5,7 @@ import { Subject, catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { Forecast } from '../models/forecast.model';
 import { Municipality } from '../models/municipality.model';
 import { TemperatureUnit } from '../models/temperature-unit.model';
+import { mapForecastError } from '../utils/weather-error.util';
 import { WeatherApiService } from './weather-api.service';
 
 interface ForecastRequest {
@@ -86,11 +86,6 @@ export class ForecastStore {
   }
 
   private mapError(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      const detail = (error.error as { detail?: string } | null)?.detail;
-      return detail ?? 'No se pudo cargar la predicción.';
-    }
-
-    return 'No se pudo cargar la predicción.';
+    return mapForecastError(error);
   }
 }
