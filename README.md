@@ -126,7 +126,7 @@ El workflow está en `.github/workflows/docker-publish.yml` y se ejecuta con:
 - `push` de tags `v*`;
 - ejecución manual desde la pestaña Actions.
 
-Publica dos imágenes GHCR a la vez que construye `backend/` y `frontend/`. Cuando el paquete GitHub Container Registry se complete la primeira vez, revisa la visibilidad de ambos paquetes en GitHub y márcalos como públicos en package settings.
+Publica dos imágenes GHCR en paralelo mientras construye `backend/` y `frontend/`. Tras la primera ejecución del workflow, revisa la visibilidad de `technical-weather-app-backend` y `technical-weather-app-frontend` en GitHub Packages y marca ambos paquetes como públicos.
 
 ## Git local
 
