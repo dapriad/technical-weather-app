@@ -1,0 +1,29 @@
+name: technical-weather-app
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-backend:local}
+    build:
+      context: ./backend
+    container_name: technical-weather-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/dapriad/technical-weather-app-frontend:local}
+    build:
+      context: ./frontend
+    container_name: technical-weather-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      backend:
+        condition: service_healthy

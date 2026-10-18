@@ -1,0 +1,25 @@
+<main>
+  <section class="card">
+    <p class="eyebrow">technical weather app</p>
+    <h1>{{ title() }}</h1>
+
+    <p class="message">{{ message() }}</p>
+
+    <dl class="status-list">
+      <div>
+        <dt>Backend health</dt>
+        <dd>{{ health() }}</dd>
+      </div>
+      <div>
+        <dt>API endpoint</dt>
+        <dd>/api/hello</dd>
+      </div>
+    </dl>
+
+    <button type="button" (click)="load()">Reload API</button>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+  </section>
+</main>
