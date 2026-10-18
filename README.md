@@ -9,6 +9,7 @@ Technical monorepo for a technical exercise based on Spring Boot and Angular. Th
 This is a runnable application with AEMET OpenData integration:
 
 - Angular application served through Nginx.
+- Angular shell with PrimeNG Aura theme and an empty home route.
 - Spring Boot REST endpoints including AEMET municipality search and tomorrow forecast.
 - Development proxy from Angular to Spring Boot.
 - Local Docker Compose environment.
@@ -26,6 +27,8 @@ There is no database or authentication in this milestone. The forecast response 
 | API documentation | Springdoc OpenAPI | 3.1.1 |
 | API documentation | Swagger UI | 5.32.14 |
 | Frontend | Angular | 22.2 |
+| Frontend | PrimeNG | 22.1 |
+| Frontend theme | @primeuix/themes Aura | 3.0 |
 | Frontend | TypeScript | 6.0.x |
 | Frontend build image | Node.js | 24 Alpine |
 | Frontend runtime image | Nginx | 1.27 Alpine |
@@ -59,9 +62,7 @@ Validate the API:
 
 ```bash
 curl -fsS http://localhost:8080/api/health
-curl -fsS http://localhost:8080/api/hello
 curl -fsS http://localhost:4200/api/health
-curl -fsS http://localhost:4200/api/hello
 curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
 curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
 curl --get --data-urlencode 'municipalityId=28079' --data-urlencode 'temperatureUnit=G_FAH' http://localhost:8080/api/forecast
@@ -80,13 +81,12 @@ For a step-by-step reviewer guide, use the [onboarding documentation](docs/ONBOA
 | Method | Path | Response |
 |---|---|---|
 | GET | `/api/health` | `{"status":"UP"}` |
-| GET | `/api/hello` | `{"message":"Hello from Spring Boot"}` |
 | GET | `/api/municipalities?name=Madrid` | `[{"id":"28079","name":"Madrid"}]` |
 | GET | `/api/forecast?municipalityId=28079&temperatureUnit=G_CEL` | Tomorrow average temperature and precipitation breakdown |
 | GET | `/swagger-ui.html` | Swagger UI for the Spring Boot API |
 | GET | `/v3/api-docs` | Generated OpenAPI definition |
 
-The same `/api/health`, `/api/hello`, `/api/municipalities` and `/api/forecast` paths are available through the frontend proxy.
+The same `/api/health`, `/api/municipalities` and `/api/forecast` paths are available through the frontend proxy.
 
 ## Repository layout
 
@@ -124,7 +124,7 @@ npm ci
 npm start
 ```
 
-The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`.
+The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`. The frontend shell uses Angular Router and PrimeNG Aura, starting with an empty home route.
 
 Full local workflow and troubleshooting are documented in [docs/ONBOARDING.md](docs/ONBOARDING.md).
 

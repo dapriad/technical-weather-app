@@ -2,6 +2,13 @@
 
 Angular 22 single-page application for the technical weather app repository.
 
+## Stack
+
+- Angular standalone components.
+- Angular Router.
+- PrimeNG 22 with Aura styled theme.
+- Development proxy to the Spring Boot backend.
+
 ## Local development
 
 ```bash
@@ -10,6 +17,16 @@ npm start
 ```
 
 The frontend runs on `http://localhost:4200`. It uses `proxy.conf.json` to forward `/api` requests to the Spring Boot backend on `http://localhost:8080`.
+
+## Structure
+
+```text
+src/app/
+├── app.ts                 # Root shell with router outlet
+├── app.routes.ts          # Route definitions
+├── app.config.ts          # HttpClient, router and PrimeNG providers
+└── pages/home/            # Empty home page
+```
 
 ## Commands
 

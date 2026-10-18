@@ -78,11 +78,9 @@ Expected exposed services:
 |---|---|
 | `http://localhost:4200` | Angular frontend served by nginx. |
 | `http://localhost:4200/api/health` | Health endpoint through the frontend proxy. |
-| `http://localhost:4200/api/hello` | Hello endpoint through the frontend proxy. |
 | `http://localhost:4200/api/municipalities?name=Madrid` | Municipality search through the frontend proxy. |
 | `http://localhost:4200/api/forecast?municipalityId=28079` | Tomorrow forecast through the frontend proxy. |
 | `http://localhost:8080/api/health` | Backend health endpoint. |
-| `http://localhost:8080/api/hello` | Backend hello endpoint. |
 | `http://localhost:8080/api/municipalities?name=Madrid` | Backend municipality search. |
 | `http://localhost:8080/api/forecast?municipalityId=28079&temperatureUnit=G_FAH` | Backend tomorrow forecast in Fahrenheit. |
 | `http://localhost:8080/swagger-ui.html` | Swagger UI from the backend. |
@@ -92,7 +90,6 @@ Validate the endpoints:
 
 ```bash
 curl -fsS http://localhost:8080/api/health
-curl -fsS http://localhost:8080/api/hello
 curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
 curl --get --data-urlencode 'name=malaga' http://localhost:8080/api/municipalities
 curl -fsS http://localhost:4200/api/municipalities?name=Madrid
@@ -244,15 +241,16 @@ The backend uses a lightweight hexagonal structure:
 
 ### Frontend
 
-The Angular application is a basic standalone app:
+The Angular application is a standalone app shell using Angular Router and PrimeNG Aura:
 
 - `frontend/src/app/app.ts`
-- `frontend/src/app/app.html`
-- `frontend/src/app/app.scss`
-
-The root service configuration is in:
-
+  - Root shell component with `<router-outlet />`.
+- `frontend/src/app/app.routes.ts`
+  - Default route points to the empty home page.
+- `frontend/src/app/pages/home/`
+  - Empty home component.
 - `frontend/src/app/app.config.ts`
+  - Root providers: HttpClient, router and PrimeNG/Aura theme.
 
 ## Troubleshooting
 

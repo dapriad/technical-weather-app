@@ -12,7 +12,6 @@ http://localhost:8080/v3/api-docs
 ## Current endpoints
 
 - `GET /api/health` — Health check
-- `GET /api/hello` — Hello endpoint
 - `GET /api/municipalities?name=Madrid` — Municipality search (AEMET integration)
 - `GET /api/forecast?municipalityId=28079&temperatureUnit=G_CEL` — Tomorrow forecast (AEMET integration)
 
