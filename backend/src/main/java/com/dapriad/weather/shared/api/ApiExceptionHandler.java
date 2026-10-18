@@ -4,7 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.dapriad.weather.application.exception.InvalidMunicipalityIdException;
 import com.dapriad.weather.application.exception.WeatherProviderException;
 
 @RestControllerAdvice
@@ -20,6 +22,28 @@ public class ApiExceptionHandler {
         problem.setProperty("code", ex.reason().name());
         problem.setInstance(null);
 
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidMunicipalityIdException.class)
+    public ProblemDetail handleInvalidMunicipalityId(InvalidMunicipalityIdException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid municipality ID");
+        problem.setDetail(ex.getMessage());
+        problem.setProperty("code", "INVALID_MUNICIPALITY_ID");
+        problem.setInstance(null);
+        return problem;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String code = "temperatureUnit".equals(ex.getName()) ? "INVALID_TEMPERATURE_UNIT" : "INVALID_REQUEST";
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid request parameter");
+        problem.setDetail("The '" + ex.getName() + "' parameter is invalid.");
+        problem.setProperty("code", code);
+        problem.setInstance(null);
         return problem;
     }
 
