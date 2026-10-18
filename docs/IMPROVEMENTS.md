@@ -21,3 +21,8 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 - [x] **SSRF protection**: The AEMET `datos` URL host is validated against `opendata.aemet.es` before the second request.
 - [x] **Weather feature UI**: Municipality autocomplete, temperature unit selector and forecast card.
 - [x] **Frontend municipality catalog cache**: The frontend loads the municipality catalog once in memory and filters locally when available.
+
+## Related documentation
+
+- [Architecture guide](ARCHITECTURE.md)
+- [Onboarding guide](ONBOARDING.md)

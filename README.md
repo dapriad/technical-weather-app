@@ -1,216 +1,164 @@
 # Technical Weather App
 
-[![CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml)
-[![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
+[![CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml)
+[![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
+[![Latest release](https://img.shields.io/github/v/release/dapriad/technical-weather-app?sort=semver&display_name=release)](https://github.com/dapriad/technical-weather-app/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/dapriad/technical-weather-app/releases)
 
-Technical monorepo for a technical exercise based on Spring Boot and Angular. The repository contains an API with AEMET OpenData integration, an Angular frontend, Docker configurations, and a GitHub Actions workflow that publishes public container images to GitHub Container Registry.
+[![Java 21](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot 4.1.1](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Angular 22](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![PrimeNG 22](https://img.shields.io/badge/PrimeNG-22-4B5563)](https://primeng.org/)
+[![Docker](https://img.shields.io/badge/Docker-multi--arch-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white)](https://github.com/dapriad/technical-weather-app/actions)
+[![AEMET](https://img.shields.io/badge/AEMET-OpenData-0B6E4F)](https://opendata.aemet.es/)
 
-## Current status
+A full-stack technical exercise that shows tomorrow's weather for Spanish municipalities using
+[AEMET OpenData](https://opendata.aemet.es/). The monorepo contains a Spring Boot API, an Angular
+single-page application, Docker images published to GitHub Container Registry, and the CI/CD
+pipelines that build and publish them.
 
-This is a runnable application with AEMET OpenData integration:
+<!-- Add the app screenshot at docs/assets/weather-app.png and uncomment:
+![Technical Weather App](docs/assets/weather-app.png)
+-->
 
-- Angular application served through Nginx.
-- Weather feature UI with PrimeNG Aura, municipality autocomplete and temperature unit selector.
-- Spring Boot REST endpoints including AEMET municipality search and tomorrow forecast.
-- Development proxy from Angular to Spring Boot.
-- Local Docker Compose environment.
-- Public GHCR images for `linux/amd64` and `linux/arm64`.
-- Automatic OpenAPI documentation using Springdoc.
+## What it does
 
-There is no database or authentication in this milestone. The autocomplete loads the municipality catalog once in the background and filters locally when it is available.
+- Search Spanish municipalities with an autocomplete backed by AEMET.
+- Show tomorrow's average temperature for the selected municipality.
+- Switch between Celsius and Fahrenheit without reloading the page.
+- Break down rain probability into `00-06`, `06-12`, `12-18` and `18-24` periods.
+- Expose the API through Swagger UI and a generated OpenAPI definition.
+- Run the full stack with Docker Compose using multi-architecture container images.
 
-## Stack
+There is no database or authentication in this milestone. The frontend loads the municipality
+catalog once in memory and filters it locally; forecast requests still call AEMET on every refresh.
 
-| Component | Technology | Version |
+## Technology stack
+
+| Layer | Technology | Version |
 |---|---|---|
 | Backend | Java | 21 |
 | Backend | Spring Boot | 4.1.1 |
-| API documentation | Springdoc OpenAPI | 3.1.1 |
-| API documentation | Swagger UI | 5.32.14 |
+| Backend | Springdoc OpenAPI / Swagger UI | 3.1.1 / 5.32.14 |
+| Backend | AEMET client | Spring `RestClient` |
 | Frontend | Angular | 22.2 |
-| Frontend | PrimeNG | 22.1 |
-| Frontend theme | @primeuix/themes Aura | 3.0 |
-| Frontend | TypeScript | 6.0.x |
-| Frontend build image | Node.js | 24 Alpine |
-| Frontend runtime image | Nginx | 1.27 Alpine |
-| Container orchestration | Docker Compose V2 | current |
-| AEMET client | RestClient | JDK HttpClient (Java 21) |
+| Frontend | PrimeNG + Aura theme | 22.1 / 3.0 |
+| Frontend | TypeScript | 6.0 |
+| Build | Node.js | 24 Alpine |
+| Runtime | Nginx | 1.27 Alpine |
+| Platform | Docker Compose V2, GitHub Actions, GHCR | current |
 
-## Quick start with published images
+## Quick start
 
-Start a compatible Docker runtime, then run:
+You need Docker Engine, Docker Compose V2 and an AEMET OpenData API key. Get a key at
+<https://opendata.aemet.es/centrodedescargas/inicio>.
 
 ```bash
 git clone https://github.com/dapriad/technical-weather-app.git
 cd technical-weather-app
 
-# Copy the environment example and add your AEMET key
-# https://opendata.aemet.es/centrodedescargas/inicio
 cp .env.example .env
-# Edit .env and replace AEMET_API_KEY with your real key
+# Edit .env and set AEMET_API_KEY to your real key
 
 docker compose up -d
 ```
 
-Open:
+Open the application and the API documentation:
 
 ```text
-http://localhost:4200
+http://localhost:4200              # Weather UI
 http://localhost:8080/swagger-ui.html
 ```
 
-In the frontend, search for a municipality, select it and optionally change the temperature unit. The forecast card refreshes when the selected municipality or temperature unit changes.
-
-Validate the API:
+Check that the backend is healthy:
 
 ```bash
 curl -fsS http://localhost:8080/api/health
-curl -fsS http://localhost:4200/api/health
-curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
-curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
-curl --get --data-urlencode 'municipalityId=28079' --data-urlencode 'temperatureUnit=G_FAH' http://localhost:8080/api/forecast
 ```
 
-Stop the environment:
-
-```bash
-docker compose down
-```
-
-For a step-by-step reviewer guide, use the [onboarding documentation](docs/ONBOARDING.md).
-
-## Current endpoints
-
-| Method | Path | Response |
-|---|---|---|
-| GET | `/api/health` | `{"status":"UP"}` |
-| GET | `/api/municipalities?name=Madrid` | `[{"id":"28079","name":"Madrid"}]` |
-| GET | `/api/forecast?municipalityId=28079&temperatureUnit=G_CEL` | Tomorrow average temperature and precipitation breakdown |
-| GET | `/swagger-ui.html` | Swagger UI for the Spring Boot API |
-| GET | `/v3/api-docs` | Generated OpenAPI definition |
-
-The same `/api/health`, `/api/municipalities` and `/api/forecast` paths are available through the frontend proxy.
-
-## Repository layout
-
-```text
-.
-├── backend/      # Spring Boot API
-├── frontend/     # Angular application
-├── docs/         # Onboarding and API documentation notes
-├── docker-compose.yml
-└── .github/workflows/docker-publish.yml
-```
+Stop the stack with `docker compose down`. For a reviewer-oriented walkthrough, use the
+[onboarding guide](docs/ONBOARDING.md).
 
 ## Local development
 
-Install Java 21, Node.js and npm compatible with these versions:
-
-- Java 21.
-- Node.js `22.22.3+`, `24.15.0+` or `26+`.
-- npm bundled with Node.js.
-
-Start the backend:
+Install Java 21 and a compatible Node.js version (`22.22.3+`, `24.15.0+` or `26+`), then run the
+backend and frontend in separate terminals:
 
 ```bash
+# Terminal 1 - Spring Boot
 cd backend
 ./mvnw spring-boot:run
-```
 
-On Windows, use `mvnw.cmd` instead of `./mvnw`.
-
-In another terminal, start the frontend:
-
-```bash
+# Terminal 2 - Angular dev server
 cd frontend
 npm ci
 npm start
 ```
 
-The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`. The frontend feature uses Angular Router, PrimeNG Aura, a municipality autocomplete and a temperature unit selector.
+The Angular dev server proxies `/api` requests to `http://localhost:8080`.
 
-Full local workflow and troubleshooting are documented in [docs/ONBOARDING.md](docs/ONBOARDING.md).
-
-## Tests
-
-Backend:
+Run the test suites and the production build:
 
 ```bash
-cd backend
-./mvnw test
+cd backend && ./mvnw test
+cd frontend && npm test -- --watch=false && npm run build
 ```
 
-AEMET municipality search:
+## Architecture at a glance
 
-| Test | Description |
-|---|---|
-| Case-insensitive search | `Madrid` matches `madrid` |
-| Accent-insensitive search | `malaga` matches `Málaga` |
-| Substring search | `palma` matches `Palma de Mallorca` |
-| Empty result | `searchByName("NotExisting")` returns `[]` |
-| Missing key | Returns `503 Service Unavailable` |
-
-AEMET forecast:
-
-| Test | Description |
-|---|---|
-| Default unit | `temperatureUnit` defaults to `G_CEL` |
-| Fahrenheit conversion | `G_FAH` converts the Celsius average |
-| Tomorrow selection | Uses `Europe/Madrid` to select the next day |
-| Precipitation filtering | Returns only `00-06`, `06-12`, `12-18` and `18-24` |
-| ID compatibility | Accepts `28079` and `id28079` |
-| Invalid unit | Returns `400 INVALID_TEMPERATURE_UNIT` |
-
-Frontend:
-
-```bash
-cd frontend
-npm test -- --watch=false
-npm run build
+```mermaid
+flowchart LR
+    User([User]) --> UI[Angular UI]
+    UI -->|:4200| Nginx[Nginx<br/>static files + /api proxy]
+    Nginx -->|/api| REST[REST adapters]
+    REST --> APP[Application services]
+    APP --> DOMAIN[Domain models + ports]
+    DOMAIN --> AEMETADAPTER[AEMET adapters]
+    AEMETADAPTER -->|two-step REST| AEMET[(AEMET OpenData)]
 ```
 
-Weather feature:
+How a request works:
 
-| Area | Tests |
-|---|---|
-| API service | Endpoint URLs and forecast query parameters |
-| Municipality search store | Background catalog load, local filtering, remote fallback and stale response handling |
-| Forecast store | Forecast load on selection, unit changes, clearing and error mapping |
-| UI components | Autocomplete selection, unit selection and forecast rendering |
+1. Angular loads the municipality catalog once from `GET /api/municipalities`.
+2. The autocomplete filters that catalog locally after three characters. While the catalog is still
+   loading, it falls back to a remote search through the same endpoint.
+3. Selecting a municipality calls `GET /api/forecast?municipalityId=...&temperatureUnit=...`.
+4. Spring Boot validates and normalizes the INE code, calls AEMET, selects tomorrow in
+   `Europe/Madrid`, converts the temperature unit and filters the precipitation periods.
+5. The UI renders the average temperature and the four rain-probability cards.
 
-## Container images
+The backend follows a lightweight hexagonal structure: REST controllers are inbound adapters,
+application services implement the use cases, and the AEMET clients are outbound adapters behind
+domain ports. See the [architecture guide](docs/ARCHITECTURE.md) for diagrams, request sequences
+and backend details.
 
-The published images are:
+## CI/CD
+
+| Pipeline | Trigger | What it does |
+|---|---|---|
+| [CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml) | Push to `main`, pull requests, manual | Runs backend tests and frontend tests plus a production build. |
+| [Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml) | Push to `main`, `v*` tags, manual | Builds backend and frontend images for `linux/amd64` and `linux/arm64`, then pushes them to GHCR. |
+
+Docker images are published as:
 
 ```text
 ghcr.io/dapriad/technical-weather-app-backend:latest
 ghcr.io/dapriad/technical-weather-app-frontend:latest
 ```
 
-Package pages:
-
-- [Backend package](https://github.com/users/dapriad/packages/container/package/technical-weather-app-backend)
-- [Frontend package](https://github.com/users/dapriad/packages/container/package/technical-weather-app-frontend)
-
-The GitHub Actions workflow publishes both images for `linux/amd64` and `linux/arm64`. The workflow runs on pushes to `main`, on version tags, and can also be executed manually.
-
-## AEMET integration notes
-
-- The municipality search endpoint calls AEMET's `GET /api/maestro/municipios` API.
-- The forecast endpoint calls AEMET's `GET /api/prediccion/especifica/municipio/diaria/{id}` API.
-- AEMET returns a two-step response: first an envelope with a data URL, then the JSON payload from that URL.
-- The AEMET data URL host is validated against `opendata.aemet.es` before the second request.
-- The backend does not cache AEMET responses. The frontend loads the municipality catalog once in memory and filters locally when available; forecast requests still call AEMET on every refresh.
-- Municipality IDs are normalized to the five-digit INE code. The forecast endpoint also accepts the AEMET maestro `id` prefix.
-- Forecast average temperature is calculated from AEMET's available `temperatura.dato` values, with a fallback to `(maxima + minima) / 2`.
-- Search is case and accent insensitive.
-- No database is used; backend data lives only in memory for the duration of each request.
+Version tags such as `v1.0.0` also produce semver image tags. The workflow tag rules live in
+`.github/workflows/docker-publish.yml`.
 
 ## Documentation
 
-- [Onboarding guide](docs/ONBOARDING.md)
-- [API documentation guide](docs/api/README.md)
-- [Planned improvements](docs/IMPROVEMENTS.md)
+- [Onboarding guide](docs/ONBOARDING.md) - run and review the published application.
+- [Architecture guide](docs/ARCHITECTURE.md) - diagrams, layers and request flows.
+- [Planned improvements](docs/IMPROVEMENTS.md) - backlog and completed work.
+- [Questions and answers](docs/QUESTIONS.md) - open technical questions and notes.
+
+The API contract is available through Swagger UI at `http://localhost:8080/swagger-ui.html` or the
+generated OpenAPI definition at `http://localhost:8080/v3/api-docs`.
 
 ## Author
 
