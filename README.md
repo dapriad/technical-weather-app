@@ -6,16 +6,16 @@ Technical monorepo for a technical exercise based on Spring Boot and Angular. Th
 
 ## Current status
 
-This is a runnable application with AEMET municipality search integration:
+This is a runnable application with AEMET OpenData integration:
 
 - Angular application served through Nginx.
-- Spring Boot REST endpoints including AEMET municipality search.
+- Spring Boot REST endpoints including AEMET municipality search and tomorrow forecast.
 - Development proxy from Angular to Spring Boot.
 - Local Docker Compose environment.
 - Public GHCR images for `linux/amd64` and `linux/arm64`.
 - Automatic OpenAPI documentation using Springdoc.
 
-There is no database or authentication in this milestone. AEMET municipality forecasts are planned for a future iteration.
+There is no database or authentication in this milestone. The forecast response is normalized for the future frontend.
 
 ## Stack
 
@@ -63,6 +63,8 @@ curl -fsS http://localhost:8080/api/hello
 curl -fsS http://localhost:4200/api/health
 curl -fsS http://localhost:4200/api/hello
 curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
+curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
+curl --get --data-urlencode 'municipalityId=28079' --data-urlencode 'temperatureUnit=G_FAH' http://localhost:8080/api/forecast
 ```
 
 Stop the environment:
@@ -80,10 +82,11 @@ For a step-by-step reviewer guide, use the [onboarding documentation](docs/ONBOA
 | GET | `/api/health` | `{"status":"UP"}` |
 | GET | `/api/hello` | `{"message":"Hello from Spring Boot"}` |
 | GET | `/api/municipalities?name=Madrid` | `[{"id":"28079","name":"Madrid"}]` |
+| GET | `/api/forecast?municipalityId=28079&temperatureUnit=G_CEL` | Tomorrow average temperature and precipitation breakdown |
 | GET | `/swagger-ui.html` | Swagger UI for the Spring Boot API |
 | GET | `/v3/api-docs` | Generated OpenAPI definition |
 
-The same `/api/health`, `/api/hello` and `/api/municipalities` paths are available through the frontend proxy.
+The same `/api/health`, `/api/hello`, `/api/municipalities` and `/api/forecast` paths are available through the frontend proxy.
 
 ## Repository layout
 
@@ -144,6 +147,17 @@ AEMET municipality search:
 | Empty result | `searchByName("NotExisting")` returns `[]` |
 | Missing key | Returns `503 Service Unavailable` |
 
+AEMET forecast:
+
+| Test | Description |
+|---|---|
+| Default unit | `temperatureUnit` defaults to `G_CEL` |
+| Fahrenheit conversion | `G_FAH` converts the Celsius average |
+| Tomorrow selection | Uses `Europe/Madrid` to select the next day |
+| Precipitation filtering | Returns only `00-06`, `06-12`, `12-18` and `18-24` |
+| ID compatibility | Accepts `28079` and `id28079` |
+| Invalid unit | Returns `400 INVALID_TEMPERATURE_UNIT` |
+
 Frontend:
 
 ```bash
@@ -171,8 +185,12 @@ The GitHub Actions workflow publishes both images for `linux/amd64` and `linux/a
 ## AEMET integration notes
 
 - The municipality search endpoint calls AEMET's `GET /api/maestro/municipios` API.
-- AEMET returns a two-step response: first an envelope with a data URL, then the municipalities JSON from that URL.
-- The municipality list is requested on every search (no caching in this iteration). Caching is planned as a performance improvement.
+- The forecast endpoint calls AEMET's `GET /api/prediccion/especifica/municipio/diaria/{id}` API.
+- AEMET returns a two-step response: first an envelope with a data URL, then the JSON payload from that URL.
+- The AEMET data URL host is validated against `opendata.aemet.es` before the second request.
+- The municipality list and forecasts are requested on every call (no caching in this iteration). Caching is planned as a performance improvement.
+- Municipality IDs are normalized to the five-digit INE code. The forecast endpoint also accepts the AEMET maestro `id` prefix.
+- Forecast average temperature is calculated from AEMET's available `temperatura.dato` values, with a fallback to `(maxima + minima) / 2`.
 - Search is case and accent insensitive.
 - No database is used; all data lives in memory for the duration of each request.
 

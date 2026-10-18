@@ -6,7 +6,7 @@ This guide is intended for reviewers who want to run, test and inspect the Techn
 
 Technical Weather App is a technical exercise monorepo composed of:
 
-- A Spring Boot REST API with AEMET OpenData municipality integration.
+- A Spring Boot REST API with AEMET OpenData municipality search and daily forecast integration.
 - An Angular single-page application.
 - Docker images for each component, published to GitHub Container Registry.
 - A GitHub Actions workflow that builds and publishes those images automatically.
@@ -17,7 +17,7 @@ This milestone does not include:
 
 - Authentication or authorization.
 - Database integration.
-- AEMET municipality forecast (daily precipitation, temperature, etc).
+- Caching for AEMET municipality or forecast requests.
 - Frontend routing or advanced state management.
 
 ## Reviewer quick start
@@ -38,7 +38,7 @@ For local code development, also install:
 
 ### Get an AEMET API key
 
-The municipality search endpoint requires an AEMET OpenData API key.
+The municipality search and forecast endpoints require an AEMET OpenData API key.
 
 1. Visit https://opendata.aemet.es/centrodedescargas/inicio
 2. Register with your email.
@@ -80,9 +80,11 @@ Expected exposed services:
 | `http://localhost:4200/api/health` | Health endpoint through the frontend proxy. |
 | `http://localhost:4200/api/hello` | Hello endpoint through the frontend proxy. |
 | `http://localhost:4200/api/municipalities?name=Madrid` | Municipality search through the frontend proxy. |
+| `http://localhost:4200/api/forecast?municipalityId=28079` | Tomorrow forecast through the frontend proxy. |
 | `http://localhost:8080/api/health` | Backend health endpoint. |
 | `http://localhost:8080/api/hello` | Backend hello endpoint. |
 | `http://localhost:8080/api/municipalities?name=Madrid` | Backend municipality search. |
+| `http://localhost:8080/api/forecast?municipalityId=28079&temperatureUnit=G_FAH` | Backend tomorrow forecast in Fahrenheit. |
 | `http://localhost:8080/swagger-ui.html` | Swagger UI from the backend. |
 | `http://localhost:8080/v3/api-docs` | OpenAPI definition. |
 
@@ -94,6 +96,8 @@ curl -fsS http://localhost:8080/api/hello
 curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
 curl --get --data-urlencode 'name=malaga' http://localhost:8080/api/municipalities
 curl -fsS http://localhost:4200/api/municipalities?name=Madrid
+curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
+curl --get --data-urlencode 'municipalityId=28079' --data-urlencode 'temperatureUnit=G_FAH' http://localhost:8080/api/forecast
 ```
 
 Stop the containers:
@@ -155,6 +159,7 @@ Copy `.env.example` to `.env` in the repository root and set your `AEMET_API_KEY
 
 # In another terminal
 curl --get --data-urlencode 'name=Madrid' http://localhost:8080/api/municipalities
+curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
 ```
 
 ## Building the container images from source
@@ -220,20 +225,20 @@ The workflow does not depend on any stored secrets besides `GITHUB_TOKEN`.
 
 ### Backend
 
-The backend package is organized in a very flat way on purpose:
+The backend uses a lightweight hexagonal structure:
 
-- `backend/src/main/java/com/dapriad/weather/api`
-  - Scaffold controllers (health/hello).
-- `backend/src/main/java/com/dapriad/weather/config`
-  - OpenAPI configuration.
 - `backend/src/main/java/com/dapriad/weather/domain/model/`
-  - DDD domain model.
+  - Domain models and value objects (`Municipality`, `DailyForecast`, `MunicipalityForecast`, `TemperatureUnit`).
 - `backend/src/main/java/com/dapriad/weather/domain/port/`
-  - Ports (Hexagonal architecture).
+  - Output ports (`MunicipalityProvider`, `ForecastProvider`).
 - `backend/src/main/java/com/dapriad/weather/application/`
-  - Application use cases and services.
-- `backend/src/main/java/com/dapriad/weather/infrastructure/adapter/`
-  - Inbound (REST controllers) and outbound (AEMET client/adapter).
+  - Input ports, application services, validation and provider exceptions.
+- `backend/src/main/java/com/dapriad/weather/infrastructure/adapter/in/rest/`
+  - Inbound REST controllers and response DTOs.
+- `backend/src/main/java/com/dapriad/weather/infrastructure/adapter/out/aemet/`
+  - Outbound AEMET clients, adapters and DTOs.
+- `backend/src/main/java/com/dapriad/weather/infrastructure/config/`
+  - Spring configuration, `Clock`, OpenAPI and AEMET client wiring.
 - `backend/src/main/java/com/dapriad/weather/shared/api/`
   - Global error handler.
 
@@ -292,4 +297,20 @@ Run `java -version` and `mvn -version` (or `./mvnw -version`) to verify the expe
 ```bash
 export JAVA_HOME=/path/to/java-21
 export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+### AEMET rate limit
+
+The municipality and forecast endpoints call AEMET twice per request and do not cache yet. If you receive `503` with code `RATE_LIMITED`, wait and retry. You can inspect the backend logs:
+
+```bash
+docker compose logs -f backend
+```
+
+### Forecast not available
+
+If the forecast endpoint returns `404` with code `NOT_FOUND`, AEMET did not return a forecast for tomorrow. This can happen when AEMET is updating its dataset or when the municipality code is not valid.
+
+```bash
+curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
 ```
