@@ -108,7 +108,7 @@ The API returns `ProblemDetail` responses with a stable `code` property:
 4. The adapter maps AEMET fields to the normalized domain model.
 5. The application service filters, selects tomorrow, converts units and returns the result.
 
-No caching is performed in this iteration. Each search or forecast request calls AEMET twice. See [docs/IMPROVEMENTS.md](../IMPROVEMENTS.md) for the caching plan.
+No caching is performed in the backend in this iteration. The frontend loads the municipality catalog once in the background and filters locally when available, but forecast requests still call AEMET twice on every refresh. See [docs/IMPROVEMENTS.md](../IMPROVEMENTS.md) for the backend caching plan.
 
 ## Adding richer documentation for new endpoints
 

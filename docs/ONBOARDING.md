@@ -17,8 +17,8 @@ This milestone does not include:
 
 - Authentication or authorization.
 - Database integration.
-- Caching for AEMET municipality or forecast requests.
-- Frontend routing or advanced state management.
+- Backend caching for AEMET municipality or forecast requests.
+- Advanced weather UI features such as charts, weather icons and multi-day forecasts.
 
 ## Reviewer quick start
 
@@ -45,7 +45,7 @@ The municipality search and forecast endpoints require an AEMET OpenData API key
 3. Wait for the confirmation email (usually a few minutes).
 4. Use your email as the API key.
 
-**Important:** Each request calls AEMET twice (envelope + data URL). Be aware of AEMET's rate limits or use caching in production.
+**Important:** Each AEMET request is a two-step call (envelope + data URL) and the backend does not cache yet. The frontend loads the municipality catalog once in the background and filters locally when it is available, but forecast requests still call AEMET on every selection or unit change.
 
 ### Start the published stack
 
@@ -76,7 +76,7 @@ Expected exposed services:
 
 | URL | Component |
 |---|---|
-| `http://localhost:4200` | Angular frontend served by nginx. |
+| `http://localhost:4200` | Weather feature UI served by nginx. |
 | `http://localhost:4200/api/health` | Health endpoint through the frontend proxy. |
 | `http://localhost:4200/api/municipalities?name=Madrid` | Municipality search through the frontend proxy. |
 | `http://localhost:4200/api/forecast?municipalityId=28079` | Tomorrow forecast through the frontend proxy. |
@@ -96,6 +96,15 @@ curl -fsS http://localhost:4200/api/municipalities?name=Madrid
 curl --get --data-urlencode 'municipalityId=28079' http://localhost:8080/api/forecast
 curl --get --data-urlencode 'municipalityId=28079' --data-urlencode 'temperatureUnit=G_FAH' http://localhost:8080/api/forecast
 ```
+
+Manual UI test:
+
+1. Open `http://localhost:4200`.
+2. Type `Madrid` in the municipality autocomplete.
+3. Select `Madrid` from the suggestions.
+4. Confirm the forecast card appears with tomorrow's average temperature and precipitation periods.
+5. Change the unit to `Fahrenheit (°F)` and confirm the forecast refreshes.
+6. Clear the municipality and confirm the forecast disappears.
 
 Stop the containers:
 
@@ -241,16 +250,24 @@ The backend uses a lightweight hexagonal structure:
 
 ### Frontend
 
-The Angular application is a standalone app shell using Angular Router and PrimeNG Aura:
+The Angular application is a standalone feature-based app using Angular Router and PrimeNG Aura:
 
 - `frontend/src/app/app.ts`
   - Root shell component with `<router-outlet />`.
 - `frontend/src/app/app.routes.ts`
-  - Default route points to the empty home page.
-- `frontend/src/app/pages/home/`
-  - Empty home component.
+  - Default route points to the weather page.
 - `frontend/src/app/app.config.ts`
   - Root providers: HttpClient, router and PrimeNG/Aura theme.
+- `frontend/src/app/features/weather/`
+  - Weather feature vertical slice.
+- `frontend/src/app/features/weather/models/`
+  - Shared feature models: municipality, forecast and temperature unit.
+- `frontend/src/app/features/weather/services/`
+  - `WeatherApiService`, `MunicipalitySearchStore` and `ForecastStore`.
+- `frontend/src/app/features/weather/components/`
+  - Presentation components: autocomplete, unit selector and forecast card.
+- `frontend/src/app/features/weather/pages/weather-page/`
+  - Page composition and user event wiring.
 
 ## Troubleshooting
 

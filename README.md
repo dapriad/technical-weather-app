@@ -9,14 +9,14 @@ Technical monorepo for a technical exercise based on Spring Boot and Angular. Th
 This is a runnable application with AEMET OpenData integration:
 
 - Angular application served through Nginx.
-- Angular shell with PrimeNG Aura theme and an empty home route.
+- Weather feature UI with PrimeNG Aura, municipality autocomplete and temperature unit selector.
 - Spring Boot REST endpoints including AEMET municipality search and tomorrow forecast.
 - Development proxy from Angular to Spring Boot.
 - Local Docker Compose environment.
 - Public GHCR images for `linux/amd64` and `linux/arm64`.
 - Automatic OpenAPI documentation using Springdoc.
 
-There is no database or authentication in this milestone. The forecast response is normalized for the future frontend.
+There is no database or authentication in this milestone. The autocomplete loads the municipality catalog once in the background and filters locally when it is available.
 
 ## Stack
 
@@ -57,6 +57,8 @@ Open:
 http://localhost:4200
 http://localhost:8080/swagger-ui.html
 ```
+
+In the frontend, search for a municipality, select it and optionally change the temperature unit. The forecast card refreshes when the selected municipality or temperature unit changes.
 
 Validate the API:
 
@@ -124,7 +126,7 @@ npm ci
 npm start
 ```
 
-The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`. The frontend shell uses Angular Router and PrimeNG Aura, starting with an empty home route.
+The application uses `proxy.conf.json` to send `/api` requests to `http://localhost:8080`. The frontend feature uses Angular Router, PrimeNG Aura, a municipality autocomplete and a temperature unit selector.
 
 Full local workflow and troubleshooting are documented in [docs/ONBOARDING.md](docs/ONBOARDING.md).
 
@@ -165,6 +167,15 @@ cd frontend
 npm test -- --watch=false
 npm run build
 ```
+
+Weather feature:
+
+| Area | Tests |
+|---|---|
+| API service | Endpoint URLs and forecast query parameters |
+| Municipality search store | Background catalog load, local filtering, remote fallback and stale response handling |
+| Forecast store | Forecast load on selection, unit changes, clearing and error mapping |
+| UI components | Autocomplete selection, unit selection and forecast rendering |
 
 ## Container images
 

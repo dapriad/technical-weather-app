@@ -18,15 +18,32 @@ npm start
 
 The frontend runs on `http://localhost:4200`. It uses `proxy.conf.json` to forward `/api` requests to the Spring Boot backend on `http://localhost:8080`.
 
-## Structure
+## Weather feature
+
+The UI is organized as a feature-based vertical slice:
 
 ```text
-src/app/
-├── app.ts                 # Root shell with router outlet
-├── app.routes.ts          # Route definitions
-├── app.config.ts          # HttpClient, router and PrimeNG providers
-└── pages/home/            # Empty home page
+src/app/features/weather/
+├── components/
+│   ├── municipality-autocomplete/
+│   ├── temperature-unit-select/
+│   └── forecast-card/
+├── models/
+├── pages/weather-page/
+└── services/
+    ├── weather-api.service.ts
+    ├── municipality-search.store.ts
+    └── forecast.store.ts
 ```
+
+Behavior:
+
+- The municipality autocomplete loads the full catalog once in the background.
+- While the catalog is loading, the autocomplete can still search through the backend API.
+- Once the catalog is loaded, filtering happens locally.
+- Selecting a municipality loads tomorrow's forecast.
+- Changing the temperature unit refreshes the forecast.
+- Clearing the municipality clears the forecast.
 
 ## Commands
 

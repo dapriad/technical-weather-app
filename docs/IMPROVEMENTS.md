@@ -6,7 +6,7 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 
 - [ ] **Cache AEMET municipality list**: Store the full municipality list in memory (Caffeine or Spring Cache) with a TTL (e.g. 24h). This avoids calling AEMET twice on every municipality search request.
 - [ ] **Cache AEMET forecast data**: Cache municipality forecasts with a short TTL (e.g. 15-60 minutes) to reduce AEMET requests while keeping data fresh.
-- [ ] **Frontend cache + client-side filtering**: Once the frontend consumes the full municipality list, cache it and filter client-side. This provides instant autocomplete and no network latency.
+- [ ] **Persist frontend municipality catalog**: Store the loaded municipality catalog in `sessionStorage` or `localStorage` with a TTL to avoid calling AEMET on every page reload.
 - [ ] **Pagination / result limits**: The `GET /api/municipalities` endpoint currently returns up to ~8,000 municipalities. Add pagination or a `?limit=` parameter for production use.
 - [ ] **Automatic retries with backoff**: The AEMET client does not retry on transient failures. Add a retry policy with exponential backoff and honor the `Retry-After` header on 429 responses.
 - [ ] **Metrics and structured logging**: Introduce Spring Boot Actuator metrics (latency, error rate, AEMET call count) and structured JSON logs for observability.
@@ -19,3 +19,5 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 - [x] **Municipality search endpoint**: AEMET-based `GET /api/municipalities?name=...`.
 - [x] **Tomorrow forecast endpoint**: AEMET-based `GET /api/forecast?municipalityId=...&temperatureUnit=...`.
 - [x] **SSRF protection**: The AEMET `datos` URL host is validated against `opendata.aemet.es` before the second request.
+- [x] **Weather feature UI**: Municipality autocomplete, temperature unit selector and forecast card.
+- [x] **Frontend municipality catalog cache**: The frontend loads the municipality catalog once in memory and filters locally when available.
