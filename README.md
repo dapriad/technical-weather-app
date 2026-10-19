@@ -18,6 +18,8 @@ A full-stack technical exercise that shows tomorrow's weather for Spanish munici
 single-page application, Docker images published to GitHub Container Registry, and the CI/CD
 pipelines that build and publish them.
 
+[Live demo](https://technical-weather-app-niles-niles-lab.apps.nan.builders/)
+
 [Technical Weather App](docs/assets/weather-app.png)
 
 
@@ -82,9 +84,10 @@ Stop the stack with `docker compose down`. For a reviewer-oriented walkthrough, 
 
 ## Demo deployment
 
-The published demo runs as a single container that serves both the Angular build and the Spring
-Boot API on the same origin. It uses a dedicated `Dockerfile.demo`, a 24-hour municipality cache,
-a 30-minute forecast cache, inbound rate limits and a daily AEMET call budget.
+The [published demo](https://technical-weather-app-niles-niles-lab.apps.nan.builders/) runs as a
+single container that serves both the Angular build and the Spring Boot API on the same origin. It
+uses a dedicated `Dockerfile.demo`, a 24-hour municipality cache, a 30-minute forecast cache,
+inbound rate limits and a daily AEMET call budget.
 
 See the [demo deployment guide](docs/DEMO_DEPLOYMENT.md) for the container-host settings,
 environment variables, limits and verification steps.
