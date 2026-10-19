@@ -10,10 +10,10 @@ public class RateLimitProperties {
     private int apiBurst = 5;
     private int globalRequestsPerMinute = 60;
     private int globalBurst = 20;
-    private int swaggerRequestsPerMinute = 10;
-    private int swaggerBurst = 3;
-    private int globalSwaggerRequestsPerMinute = 20;
-    private int globalSwaggerBurst = 5;
+    private int swaggerRequestsPerMinute = 60;
+    private int swaggerBurst = 20;
+    private int globalSwaggerRequestsPerMinute = 120;
+    private int globalSwaggerBurst = 40;
     private boolean trustForwardedHeaders = true;
 
     public boolean isEnabled() {
