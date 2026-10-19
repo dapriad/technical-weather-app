@@ -1,5 +1,7 @@
 # Demo deployment
 
+Live demo: <https://technical-weather-app-niles-niles-lab.apps.nan.builders/>
+
 This guide describes the single-container demo deployment used to publish the application on a
 small container host. The local Docker Compose setup is unchanged: it still runs the frontend and
 backend as two containers.
@@ -31,7 +33,7 @@ The Angular application keeps using relative `/api` URLs.
 4. Deploy the branch to the container host and verify the demo.
 5. Merge the pull request into `main`.
 6. Change the demo app to deploy from `main`, or create the production app from `main` and remove
-   the branch deployment.
+   the branch deployment. The published demo now follows `main`.
 
 The `docker-publish.yml` workflow only publishes images from `main` and version tags, so branch
 deployments do not overwrite the `latest` images.
@@ -43,7 +45,7 @@ Create a dedicated app:
 | Setting | Value |
 |---|---|
 | App name | `technical-weather-app-demo` |
-| Branch | `feat/demo-deployment` |
+| Branch | `main` |
 | Dockerfile path | `Dockerfile.demo` |
 | Build context | `.` |
 | Expose over HTTP | enabled |
