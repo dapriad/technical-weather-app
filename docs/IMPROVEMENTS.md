@@ -4,8 +4,6 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 
 ## Backlog
 
-- [ ] **Cache AEMET municipality list**: Store the full municipality list in memory (Caffeine or Spring Cache) with a TTL (e.g. 24h). This avoids calling AEMET twice on every municipality search request.
-- [ ] **Cache AEMET forecast data**: Cache municipality forecasts with a short TTL (e.g. 15-60 minutes) to reduce AEMET requests while keeping data fresh.
 - [ ] **Persist frontend municipality catalog**: Store the loaded municipality catalog in `sessionStorage` or `localStorage` with a TTL to avoid calling AEMET on every page reload.
 - [ ] **Pagination / result limits**: The `GET /api/municipalities` endpoint currently returns up to ~8,000 municipalities. Add pagination or a `?limit=` parameter for production use.
 - [ ] **Automatic retries with backoff**: The AEMET client does not retry on transient failures. Add a retry policy with exponential backoff and honor the `Retry-After` header on 429 responses.
@@ -21,8 +19,14 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 - [x] **SSRF protection**: The AEMET `datos` URL host is validated against `opendata.aemet.es` before the second request.
 - [x] **Weather feature UI**: Municipality autocomplete, temperature unit selector and forecast card.
 - [x] **Frontend municipality catalog cache**: The frontend loads the municipality catalog once in memory and filters locally when available.
+- [x] **Backend municipality cache**: The catalog is cached with Caffeine for 24 hours.
+- [x] **Backend forecast cache**: Forecasts are cached with Caffeine for 30 minutes per municipality.
+- [x] **Inbound rate limiting**: Per-IP and global limits protect `/api/**` and Swagger UI.
+- [x] **Outbound AEMET budget**: Per-minute and daily limits protect the AEMET provider quota.
+- [x] **Single-container demo image**: `Dockerfile.demo` serves the Angular build and the API from one container.
 
 ## Related documentation
 
 - [Architecture guide](ARCHITECTURE.md)
 - [Onboarding guide](ONBOARDING.md)
+- [Demo deployment guide](DEMO_DEPLOYMENT.md)
