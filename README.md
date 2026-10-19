@@ -31,7 +31,8 @@ pipelines that build and publish them.
 - Run the full stack with Docker Compose using multi-architecture container images.
 
 There is no database or authentication in this milestone. The frontend loads the municipality
-catalog once in memory and filters it locally; forecast requests still call AEMET on every refresh.
+catalog once in memory and filters it locally. The backend caches the municipality catalog for 24
+hours and forecasts for 30 minutes, and it rate-limits public requests and outbound AEMET calls.
 
 ## Technology stack
 
@@ -79,6 +80,17 @@ curl -fsS http://localhost:8080/api/health
 Stop the stack with `docker compose down`. For a reviewer-oriented walkthrough, use the
 [onboarding guide](docs/ONBOARDING.md).
 
+## Demo deployment
+
+The published demo runs as a single container that serves both the Angular build and the Spring
+Boot API on the same origin. It uses a dedicated `Dockerfile.demo`, a 24-hour municipality cache,
+a 30-minute forecast cache, inbound rate limits and a daily AEMET call budget.
+
+See the [demo deployment guide](docs/DEMO_DEPLOYMENT.md) for the container-host settings,
+environment variables, limits and verification steps.
+
+The local Docker Compose setup and the published backend/frontend images remain unchanged.
+
 ## Local development
 
 Install Java 21 and a compatible Node.js version (`22.22.3+`, `24.15.0+` or `26+`), then run the
@@ -120,12 +132,17 @@ flowchart LR
 How a request works:
 
 1. Angular loads the municipality catalog once from `GET /api/municipalities`.
-2. The autocomplete filters that catalog locally after three characters. While the catalog is still
+2. The backend serves the catalog from a 24-hour cache. On a cache miss it calls AEMET.
+3. The autocomplete filters that catalog locally after three characters. While the catalog is still
    loading, it falls back to a remote search through the same endpoint.
-3. Selecting a municipality calls `GET /api/forecast?municipalityId=...&temperatureUnit=...`.
-4. Spring Boot validates and normalizes the INE code, calls AEMET, selects tomorrow in
-   `Europe/Madrid`, converts the temperature unit and filters the precipitation periods.
-5. The UI renders the average temperature and the four rain-probability cards.
+4. Selecting a municipality calls `GET /api/forecast?municipalityId=...&temperatureUnit=...`.
+5. The backend serves the forecast from a 30-minute per-municipality cache. On a cache miss it
+   validates and normalizes the INE code, calls AEMET, selects tomorrow in `Europe/Madrid`,
+   converts the temperature unit and filters the precipitation periods.
+6. The UI renders the average temperature and the four rain-probability cards.
+
+Public API requests are rate-limited per IP and globally. Outbound AEMET calls have their own
+per-minute and daily budget, so repeated cache misses cannot consume the provider quota silently.
 
 The backend follows a lightweight hexagonal structure: REST controllers are inbound adapters,
 application services implement the use cases, and the AEMET clients are outbound adapters behind
@@ -136,7 +153,7 @@ and backend details.
 
 | Pipeline | Trigger | What it does |
 |---|---|---|
-| [CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml) | Push to `main`, pull requests, manual | Runs backend tests and frontend tests plus a production build. |
+| [CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml) | Push to `main`, pull requests, manual | Runs backend tests, frontend tests, a production build and a demo image build. |
 | [Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml) | Push to `main`, `v*` tags, manual | Builds backend and frontend images for `linux/amd64` and `linux/arm64`, then pushes them to GHCR. |
 
 Docker images are published as:
@@ -152,6 +169,7 @@ Version tags such as `v1.0.0` also produce semver image tags. The workflow tag r
 ## Documentation
 
 - [Onboarding guide](docs/ONBOARDING.md) - run and review the published application.
+- [Demo deployment guide](docs/DEMO_DEPLOYMENT.md) - single-container demo, limits and security.
 - [Architecture guide](docs/ARCHITECTURE.md) - diagrams, layers and request flows.
 - [Planned improvements](docs/IMPROVEMENTS.md) - backlog and completed work.
 - [Questions and answers](docs/QUESTIONS.md) - open technical questions and notes.

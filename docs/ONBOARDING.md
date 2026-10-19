@@ -31,9 +31,9 @@ The backend requires an AEMET OpenData API key:
 4. Use the API key included in that email.
 
 AEMET uses a two-step response: the first request returns an envelope with a `datos` URL, and the
-second request downloads the actual JSON payload. The backend does not cache these calls yet. The
-frontend loads the municipality catalog once in memory, but forecast requests still call AEMET on
-every municipality or unit change.
+second request downloads the actual JSON payload. The backend caches the municipality catalog for
+24 hours and forecasts for 30 minutes, so repeated requests do not call AEMET every time. The
+frontend also keeps the catalog in memory for the current session.
 
 ## Start the published stack
 
@@ -154,10 +154,12 @@ Confirm that the GHCR packages are public and that the image names in `docker-co
 exact. If the package visibility or repository name changes, update the compose file and the GitHub
 Actions workflow together.
 
-### AEMET rate limit
+### AEMET rate limit or demo budget
 
-AEMET calls are not cached in the backend. If the API returns `503` with code `RATE_LIMITED`, wait
-and retry. Inspect the logs with:
+AEMET calls are cached and protected by a per-minute and daily budget. If the API returns `503`
+with code `RATE_LIMITED`, wait and retry. If it returns `503` with code `BUDGET_EXHAUSTED`, the demo
+has reached its outbound AEMET limit; cached data still works, and uncached requests recover after
+midnight in `Europe/Madrid` or after raising the configured limit. Inspect the logs with:
 
 ```bash
 docker compose logs -f backend
@@ -171,5 +173,6 @@ municipality code is invalid. Retry later or verify the municipality ID.
 ## Next steps
 
 - [Architecture guide](ARCHITECTURE.md) - how the application works internally.
+- [Demo deployment guide](DEMO_DEPLOYMENT.md) - single-container demo, limits and security.
 - [Planned improvements](IMPROVEMENTS.md) - backlog and completed work.
 - [Questions and answers](QUESTIONS.md) - open technical questions and notes.
