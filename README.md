@@ -3,7 +3,7 @@
 [![CI](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dapriad/technical-weather-app/actions/workflows/ci.yml)
 [![Docker images](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/dapriad/technical-weather-app/actions/workflows/docker-publish.yml)
 [![Latest release](https://img.shields.io/github/v/release/dapriad/technical-weather-app?sort=semver&display_name=release)](https://github.com/dapriad/technical-weather-app/releases)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/dapriad/technical-weather-app/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/dapriad/technical-weather-app/releases)
 
 [![Java 21](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot 4.1.1](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -166,7 +166,7 @@ ghcr.io/dapriad/technical-weather-app-backend:latest
 ghcr.io/dapriad/technical-weather-app-frontend:latest
 ```
 
-Version tags such as `v1.0.0` also produce semver image tags. The workflow tag rules live in
+Version tags such as `v1.1.0` also produce semver image tags. The workflow tag rules live in
 `.github/workflows/docker-publish.yml`.
 
 ## Documentation
