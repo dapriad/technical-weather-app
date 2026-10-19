@@ -71,7 +71,10 @@ Set these in the **Runtime** environment, never in the build environment:
 | `APP_RATE_LIMIT_API_REQUESTS_PER_MINUTE` | no | Per-IP API limit. Default `20`. |
 | `APP_RATE_LIMIT_API_BURST` | no | Per-IP API burst. Default `5`. |
 | `APP_RATE_LIMIT_GLOBAL_REQUESTS_PER_MINUTE` | no | Global API limit. Default `60`. |
-| `APP_RATE_LIMIT_SWAGGER_REQUESTS_PER_MINUTE` | no | Per-IP Swagger limit. Default `10`. |
+| `APP_RATE_LIMIT_SWAGGER_REQUESTS_PER_MINUTE` | no | Per-IP limit for `/v3/api-docs`. Default `60`. |
+| `APP_RATE_LIMIT_SWAGGER_BURST` | no | Per-IP burst for `/v3/api-docs`. Default `20`. |
+| `APP_RATE_LIMIT_GLOBAL_SWAGGER_REQUESTS_PER_MINUTE` | no | Global limit for `/v3/api-docs`. Default `120`. |
+| `APP_RATE_LIMIT_GLOBAL_SWAGGER_BURST` | no | Global burst for `/v3/api-docs`. Default `40`. |
 | `APP_AEMET_BUDGET_MAX_CALLS_PER_DAY` | no | Daily outbound AEMET call budget. Default `300`. |
 | `APP_AEMET_BUDGET_MAX_CALLS_PER_MINUTE` | no | Outbound AEMET calls per minute. Default `10`. |
 | `APP_CACHE_MUNICIPALITIES_TTL` | no | Municipality cache TTL. Default `24h`. |
@@ -94,8 +97,10 @@ reads it at runtime.
 
 - `/api/**`: 20 requests per minute per IP, burst 5.
 - `/api/**`: 60 requests per minute globally.
-- Swagger and OpenAPI: 10 requests per minute per IP, burst 3.
-- Swagger and OpenAPI: 20 requests per minute globally.
+- `/v3/api-docs`: 60 requests per minute per IP, burst 20.
+- `/v3/api-docs`: 120 requests per minute globally, burst 40.
+- Swagger UI static assets and `/v3/api-docs/swagger-config` are not limited, so the UI can load
+  normally. The "Try it out" requests still go through the `/api/**` limits.
 - `/api/health`, `OPTIONS` requests and Angular static assets are not limited.
 - Rejected requests return `429 Too Many Requests` with a `Retry-After` header.
 - `X-Forwarded-For` is used when present, with `X-Real-IP` and the remote address as fallbacks.

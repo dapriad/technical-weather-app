@@ -21,7 +21,7 @@ This file tracks planned enhancements for the Technical Weather App. Items are l
 - [x] **Frontend municipality catalog cache**: The frontend loads the municipality catalog once in memory and filters locally when available.
 - [x] **Backend municipality cache**: The catalog is cached with Caffeine for 24 hours.
 - [x] **Backend forecast cache**: Forecasts are cached with Caffeine for 30 minutes per municipality.
-- [x] **Inbound rate limiting**: Per-IP and global limits protect `/api/**` and Swagger UI.
+- [x] **Inbound rate limiting**: Per-IP and global limits protect `/api/**` and the `/v3/api-docs` document.
 - [x] **Outbound AEMET budget**: Per-minute and daily limits protect the AEMET provider quota.
 - [x] **Single-container demo image**: `Dockerfile.demo` serves the Angular build and the API from one container.
 

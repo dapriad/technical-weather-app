@@ -77,14 +77,28 @@ class RateLimitFilterTest {
     }
 
     @Test
-    void shouldLimitSwaggerSeparately() throws Exception {
+    void shouldLimitOpenApiDocumentSeparately() throws Exception {
         properties.setSwaggerRequestsPerMinute(1);
         properties.setSwaggerBurst(1);
         RateLimitFilter filter = new RateLimitFilter(properties);
 
-        assertThat(call(filter, "/swagger-ui/index.html", "1.2.3.4")).isEqualTo(200);
-        assertThat(call(filter, "/swagger-ui/index.html", "1.2.3.4")).isEqualTo(429);
+        assertThat(call(filter, "/v3/api-docs", "1.2.3.4")).isEqualTo(200);
+        assertThat(call(filter, "/v3/api-docs", "1.2.3.4")).isEqualTo(429);
         assertThat(call(filter, "/api/municipalities", "1.2.3.4")).isEqualTo(200);
+    }
+
+    @Test
+    void shouldNotLimitSwaggerUiAssetsOrConfig() throws Exception {
+        properties.setSwaggerRequestsPerMinute(0);
+        properties.setSwaggerBurst(0);
+        properties.setGlobalSwaggerRequestsPerMinute(0);
+        properties.setGlobalSwaggerBurst(0);
+        RateLimitFilter filter = new RateLimitFilter(properties);
+
+        assertThat(call(filter, "/swagger-ui/index.html", "1.2.3.4")).isEqualTo(200);
+        assertThat(call(filter, "/swagger-ui/swagger-ui-bundle.js", "1.2.3.4")).isEqualTo(200);
+        assertThat(call(filter, "/v3/api-docs/swagger-config", "1.2.3.4")).isEqualTo(200);
+        assertThat(call(filter, "/v3/api-docs", "1.2.3.4")).isEqualTo(429);
     }
 
     private int call(RateLimitFilter filter, String path, String remoteAddress) throws Exception {

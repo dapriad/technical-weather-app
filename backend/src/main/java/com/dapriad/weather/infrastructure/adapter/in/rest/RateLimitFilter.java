@@ -136,7 +136,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private boolean isSwagger(String path) {
-        return path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs");
+        return path.equals("/v3/api-docs");
     }
 
     private boolean isHealth(String path) {

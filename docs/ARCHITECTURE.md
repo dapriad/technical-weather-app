@@ -110,12 +110,13 @@ entry.
 
 ### Rate limiting and AEMET budget
 
-`RateLimitFilter` protects the public API and Swagger UI with in-memory token buckets:
+`RateLimitFilter` protects the public API and the OpenAPI document with in-memory token buckets:
 
 - Per-IP and global limits for `/api/**`.
-- Per-IP and global limits for `/swagger-ui/**` and `/v3/api-docs/**`.
+- Per-IP and global limits for `/v3/api-docs`.
 - `429 Too Many Requests` with a `Retry-After` header when a limit is exceeded.
-- `/api/health` and static frontend assets are excluded.
+- Swagger UI static assets, `/v3/api-docs/swagger-config`, `/api/health` and static frontend assets
+  are excluded.
 
 `AemetCallBudget` limits outbound AEMET calls:
 
