@@ -101,4 +101,16 @@ class MunicipalityControllerTest {
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.code").value("RATE_LIMITED"));
     }
+
+    @Test
+    void shouldReturn503ForBudgetExhausted() throws Exception {
+        when(searchMunicipalitiesUseCase.searchByName("Madrid"))
+                .thenThrow(new WeatherProviderException(
+                        WeatherProviderException.Reason.BUDGET_EXHAUSTED,
+                        "Demo budget exhausted"));
+
+        mockMvc.perform(get("/api/municipalities").param("name", "Madrid"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.code").value("BUDGET_EXHAUSTED"));
+    }
 }

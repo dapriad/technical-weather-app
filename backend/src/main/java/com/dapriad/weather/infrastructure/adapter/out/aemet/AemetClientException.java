@@ -12,7 +12,8 @@ public class AemetClientException extends RuntimeException {
         TIMEOUT,
         CONNECT_ERROR,
         PARSING_ERROR,
-        INVALID_DATA_URL
+        INVALID_DATA_URL,
+        BUDGET_EXHAUSTED
     }
 
     private final Reason reason;

@@ -22,11 +22,17 @@ public class AemetOpenDataClient {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final String apiKey;
+    private final AemetCallBudget callBudget;
 
-    public AemetOpenDataClient(RestClient restClient, ObjectMapper objectMapper, String apiKey) {
+    public AemetOpenDataClient(
+            RestClient restClient,
+            ObjectMapper objectMapper,
+            String apiKey,
+            AemetCallBudget callBudget) {
         this.restClient = restClient;
         this.objectMapper = objectMapper;
         this.apiKey = apiKey;
+        this.callBudget = callBudget;
     }
 
     public <T> T fetchData(String path, TypeReference<T> type) {
@@ -48,6 +54,8 @@ public class AemetOpenDataClient {
     }
 
     AemetEnvelope fetchEnvelope(String path) {
+        callBudget.acquire();
+
         try {
             log.info("Fetching AEMET envelope from {}", path);
 
@@ -83,6 +91,8 @@ public class AemetOpenDataClient {
     }
 
     <T> T fetchDataUrl(String dataUrl, TypeReference<T> type) {
+        callBudget.acquire();
+
         try {
             log.info("Fetching AEMET data from a data URL");
 

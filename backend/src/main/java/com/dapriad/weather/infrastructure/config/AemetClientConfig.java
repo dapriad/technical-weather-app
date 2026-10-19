@@ -9,7 +9,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@EnableConfigurationProperties(AemetProperties.class)
+@EnableConfigurationProperties({AemetProperties.class, AemetBudgetProperties.class})
 public class AemetClientConfig {
 
     @Bean

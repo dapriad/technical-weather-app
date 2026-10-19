@@ -12,6 +12,7 @@ import com.dapriad.weather.application.service.GetMunicipalityForecastService;
 import com.dapriad.weather.application.service.SearchMunicipalitiesService;
 import com.dapriad.weather.domain.port.ForecastProvider;
 import com.dapriad.weather.domain.port.MunicipalityProvider;
+import com.dapriad.weather.infrastructure.adapter.out.aemet.AemetCallBudget;
 import com.dapriad.weather.infrastructure.adapter.out.aemet.AemetForecastAdapter;
 import com.dapriad.weather.infrastructure.adapter.out.aemet.AemetForecastClient;
 import com.dapriad.weather.infrastructure.adapter.out.aemet.AemetMunicipalityAdapter;
@@ -38,8 +39,11 @@ public class ApplicationConfig {
     }
 
     @Bean
-    AemetOpenDataClient aemetOpenDataClient(RestClient aemetRestClient, AemetProperties properties) {
-        return new AemetOpenDataClient(aemetRestClient, new ObjectMapper(), properties.getKey());
+    AemetOpenDataClient aemetOpenDataClient(
+            RestClient aemetRestClient,
+            AemetProperties properties,
+            AemetCallBudget callBudget) {
+        return new AemetOpenDataClient(aemetRestClient, new ObjectMapper(), properties.getKey(), callBudget);
     }
 
     @Bean

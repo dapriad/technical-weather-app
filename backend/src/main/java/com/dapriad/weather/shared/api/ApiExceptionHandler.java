@@ -51,6 +51,7 @@ public class ApiExceptionHandler {
         return switch (reason) {
             case NOT_CONFIGURED -> HttpStatus.SERVICE_UNAVAILABLE;
             case RATE_LIMITED -> HttpStatus.SERVICE_UNAVAILABLE;
+            case BUDGET_EXHAUSTED -> HttpStatus.SERVICE_UNAVAILABLE;
             case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case TIMEOUT -> HttpStatus.GATEWAY_TIMEOUT;
@@ -63,6 +64,7 @@ public class ApiExceptionHandler {
             case NOT_CONFIGURED -> "AEMET API key is missing";
             case UNAUTHORIZED -> "AEMET credentials rejected";
             case RATE_LIMITED -> "AEMET rate limit exceeded";
+            case BUDGET_EXHAUSTED -> "AEMET demo budget exhausted";
             case NOT_FOUND -> "AEMET resource not found";
             case UNAVAILABLE -> "AEMET service unavailable";
             case TIMEOUT -> "AEMET request timed out";
@@ -76,6 +78,7 @@ public class ApiExceptionHandler {
             case NOT_CONFIGURED -> "Weather data is not available. Check the AEMET_API_KEY configuration.";
             case UNAUTHORIZED -> "AEMET rejected the API key. Verify the key is valid and not expired.";
             case RATE_LIMITED -> "AEMET rate limit exceeded. Please try again later.";
+            case BUDGET_EXHAUSTED -> "The demo has reached its AEMET call limit. Please try again later.";
             case NOT_FOUND -> "The requested weather resource was not found.";
             case UNAVAILABLE -> "Weather data is temporarily unavailable. Please try again later.";
             case TIMEOUT -> "AEMET request timed out. Please try again later.";
