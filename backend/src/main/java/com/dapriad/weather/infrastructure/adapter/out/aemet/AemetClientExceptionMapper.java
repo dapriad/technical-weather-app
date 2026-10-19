@@ -36,6 +36,9 @@ public final class AemetClientExceptionMapper {
             case INVALID_DATA_URL -> new WeatherProviderException(
                     WeatherProviderException.Reason.INVALID_DATA_URL,
                     "AEMET data URL is invalid", e);
+            case BUDGET_EXHAUSTED -> new WeatherProviderException(
+                    WeatherProviderException.Reason.BUDGET_EXHAUSTED,
+                    "AEMET demo call budget exhausted", e);
             case HTTP_ERROR -> new WeatherProviderException(
                     WeatherProviderException.Reason.UNAVAILABLE,
                     "AEMET service unavailable", e);

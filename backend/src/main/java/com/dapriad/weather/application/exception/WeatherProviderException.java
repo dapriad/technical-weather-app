@@ -10,7 +10,8 @@ public class WeatherProviderException extends RuntimeException {
         UNAVAILABLE,
         TIMEOUT,
         INVALID_RESPONSE,
-        INVALID_DATA_URL
+        INVALID_DATA_URL,
+        BUDGET_EXHAUSTED
     }
 
     private final Reason reason;
