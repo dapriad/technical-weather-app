@@ -35,7 +35,7 @@ public class MunicipalityController {
     @Operation(summary = "Search municipalities by name", description =
             "Returns municipality records matching the given name. " +
             "Search is case and accent insensitive. If name is omitted, returns the full list. " +
-            "Each request calls AEMET twice (envelope + data URL). No caching in this iteration.")
+            "The municipality catalog is cached in the backend for 24 hours.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Municipalities found (may be empty)",
                     content = @Content(mediaType = "application/json",
