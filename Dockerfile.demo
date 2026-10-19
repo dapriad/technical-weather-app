@@ -1,21 +1,21 @@
 FROM node:24-alpine AS frontend-build
-WORKDIR /workspace/frontend
+WORKDIR /build/frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
 FROM maven:3.9-eclipse-temurin-21 AS backend-build
-WORKDIR /workspace/backend
+WORKDIR /build/backend
 COPY backend/pom.xml .
 COPY backend/src ./src
-COPY --from=frontend-build /workspace/frontend/dist/frontend/browser ./src/main/resources/static
+COPY --from=frontend-build /build/frontend/dist/frontend/browser ./src/main/resources/static
 RUN mvn -B -ntp -DskipTests package
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
-COPY --from=backend-build /workspace/backend/target/*.jar app.jar
+COPY --from=backend-build /build/backend/target/*.jar app.jar
 RUN chown -R app:app /app
 USER app
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:+UseSerialGC"
