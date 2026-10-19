@@ -33,7 +33,7 @@ public class ForecastController {
     @Operation(summary = "Get tomorrow forecast for a municipality", description =
             "Returns the normalized daily forecast for the day after today in Europe/Madrid. " +
             "The municipality ID accepts both the INE code and the AEMET maestro `id` prefix. " +
-            "Each request calls AEMET twice (envelope + data URL). No caching in this iteration.")
+            "Forecasts are cached per municipality for 30 minutes.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Forecast retrieved successfully",
                     content = @Content(mediaType = "application/json",
