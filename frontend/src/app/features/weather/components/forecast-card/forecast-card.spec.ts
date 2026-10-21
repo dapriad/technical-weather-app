@@ -37,5 +37,25 @@ describe('ForecastCard', () => {
     expect(text).toContain('00–06 h');
     expect(text).toContain('10%');
     expect(text).toContain('Datos de AEMET');
+    expect(text).not.toContain('No hay datos de precipitación disponibles');
+  });
+
+  it('shows an empty state when precipitation data is unavailable', () => {
+    const fixture = TestBed.createComponent(ForecastCard);
+
+    fixture.componentRef.setInput('municipalityName', 'Lugo');
+    fixture.componentRef.setInput('dateLabel', 'Jueves, 22 de octubre de 2026');
+    fixture.componentRef.setInput('forecast', {
+      averageTemperature: 11,
+      temperatureUnit: 'G_CEL',
+      precipitationProbability: [],
+    } satisfies Forecast);
+    fixture.detectChanges();
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent).toContain(
+      'No hay datos de precipitación disponibles para esta franja horaria.',
+    );
+    expect(element.querySelectorAll('.precipitation-item')).toHaveLength(0);
   });
 });

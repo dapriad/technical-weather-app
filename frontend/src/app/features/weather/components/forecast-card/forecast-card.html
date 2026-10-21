@@ -44,6 +44,10 @@
           <span class="probability">{{ item.probability }}%</span>
           <p-progressbar [value]="item.probability" [showValue]="false" />
         </div>
+      } @empty {
+        <p class="precipitation-empty">
+          No hay datos de precipitación disponibles para esta franja horaria.
+        </p>
       }
     </div>
   </section>
