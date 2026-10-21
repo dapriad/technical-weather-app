@@ -6,6 +6,4 @@ import com.dapriad.weather.domain.model.Municipality;
 public interface MunicipalityProvider {
 
     List<Municipality> findAll();
-
-    List<Municipality> searchByName(String name);
 }
