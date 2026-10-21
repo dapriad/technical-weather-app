@@ -27,12 +27,4 @@ public class AemetMunicipalityAdapter implements MunicipalityProvider {
             throw AemetClientExceptionMapper.toWeatherProviderException(e);
         }
     }
-
-    @Override
-    public List<Municipality> searchByName(String name) {
-        List<Municipality> all = findAll();
-        return all.stream()
-                .filter(m -> m.name() != null && m.name().equalsIgnoreCase(name))
-                .collect(Collectors.toList());
-    }
 }
